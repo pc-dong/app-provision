@@ -3,13 +3,14 @@
 
 interface Configurations #orange {
     Flux<Configuration> findAllByType(String type)
-    Mono<Configuration> getById(ExperimentId)
+    Mono<Configuration> getById(ConfigurationId id)
     Mono<Configuration> add(Configuration configuration)
     Mono<Configuration> update(ConfigurationId id, Configuration configuration)
-    Mono<Configuration> delete(ConfigurationId id)
     Mono<Configuration> publish(ConfigurationId id)
     Mono<Configuration> disable(ConfigurationId id)
     Mono<Configuration> delete(ConfigurationId id)
+    Flux<Configuration> findAllPublishedByType(String type)
+    Mono<Void> priority(List<ConfigurationId> ids)
 }
 
 
@@ -29,9 +30,49 @@ class Customer #pink {
 
 
 class CustomerCriteriaCondition {
-    List<LocationCondition> locationConditions
-    List<String> whiteList
+    LocationCondition locationCondition
+    WhiteListCondition whiteListCondition
+    ABTestingCondition abTestingCondition
+
+    Mono<Boolean> match(Customer customer)
 }
+
+class WhiteListCondition {
+    List<String> whiteList
+
+    boolean match(CustomerId customerId)
+}
+
+class LocationCondition {
+    List<String> adCodes
+
+    boolean match(String adCode)
+}
+
+class ABTestingCondition {
+    String experimentId
+    String bucketKey
+
+    Mono<Boolean> match(Mono<Assignment> assignmentMono)
+}
+
+CustomerCriteriaCondition *- WhiteListCondition
+CustomerCriteriaCondition *- LocationCondition
+CustomerCriteriaCondition *- ABTestingCondition
+
+interface CustomerABAssignments #orange{
+    Mono<Assignment> getAssignmentOfExperiment(String ExperimentId)
+}
+
+class Assignment {
+    String experimentId
+    String bucketKey
+}
+
+Customer  -- CustomerABAssignments
+CustomerABAssignments "1" -- "*" Assignment
+ABTestingCondition o- CustomerABAssignments
+
 
 class ConfigurationDescription {
     String title
