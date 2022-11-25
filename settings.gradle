@@ -1,0 +1,6 @@
+rootProject.name = 'app-provision'
+include 'domain'
+include 'persistence'
+include 'api'
+include 'main'
+
