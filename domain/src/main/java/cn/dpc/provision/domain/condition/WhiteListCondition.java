@@ -2,7 +2,9 @@ package cn.dpc.provision.domain.condition;
 
 import cn.dpc.provision.domain.Customer;
 import lombok.AllArgsConstructor;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 import reactor.core.publisher.Mono;
 
 import java.util.List;
@@ -10,6 +12,8 @@ import java.util.Optional;
 
 @AllArgsConstructor
 @NoArgsConstructor
+@Getter
+@Setter
 public class WhiteListCondition implements Matcher{
     private List<String> whiteList;
 

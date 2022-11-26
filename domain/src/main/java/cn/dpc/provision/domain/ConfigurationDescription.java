@@ -1,17 +1,16 @@
 package cn.dpc.provision.domain;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.time.LocalDateTime;
 import java.util.Optional;
+import java.util.UUID;
 
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
 @Getter
+@Setter
 public class ConfigurationDescription {
    private String title;
    private String description;
@@ -25,6 +24,9 @@ public class ConfigurationDescription {
    private LocalDateTime updatedAt;
    private long priority;
 
+   public static ConfigurationDescriptionInternalBuilder builder() {
+      return new ConfigurationDescriptionInternalBuilder();
+   }
    public DynamicStatus getStatus() {
       switch (staticStatus) {
 
@@ -47,6 +49,29 @@ public class ConfigurationDescription {
             return DynamicStatus.IN_PROGRESS;
          case DRAFT:
          default: return DynamicStatus.DRAFT;
+      }
+   }
+
+   public static class ConfigurationDescriptionInternalBuilder extends ConfigurationDescriptionBuilder {
+
+      ConfigurationDescriptionInternalBuilder() {
+         super();
+      }
+
+      @Override public ConfigurationDescription build() {
+         ConfigurationDescription foo = super.build();
+         foo.init();
+         return foo;
+      }
+   }
+
+   private void init() {
+      if(null == key || key.trim().length() ==0) {
+         key = UUID.randomUUID().toString();
+      }
+
+      if(null == staticStatus) {
+         staticStatus = StaticStatus.DRAFT;
       }
    }
 }

@@ -15,11 +15,11 @@ public interface Configurations {
 
     Mono<Configuration> update(ConfigurationId id, Configuration configuration);
 
-    Mono<Configuration> publish(ConfigurationId id);
+    Mono<Void> publish(ConfigurationId id);
 
-    Mono<Configuration> disable(ConfigurationId id);
+    Mono<Void> disable(ConfigurationId id);
 
-    Mono<Configuration> delete(ConfigurationId id);
+    Mono<Void> delete(ConfigurationId id);
 
     Flux<Configuration> findAllPublishedByType(String type);
 

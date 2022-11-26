@@ -3,10 +3,12 @@ package cn.dpc.provision.domain;
 import cn.dpc.provision.domain.condition.CustomerCriteriaCondition;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.Setter;
+import org.apache.commons.lang3.StringUtils;
 
-@AllArgsConstructor
 @Getter
 public class Configuration {
+    @Setter
     private ConfigurationId id;
 
     private String type;
@@ -14,6 +16,22 @@ public class Configuration {
     private ConfigurationDescription description;
 
     private CustomerCriteriaCondition customerCriteriaCondition;
+
+    public Configuration(String type, ConfigurationDescription description, CustomerCriteriaCondition customerCriteriaCondition) {
+        this(null, type, description, customerCriteriaCondition);
+    }
+
+    public Configuration(ConfigurationId id, String type, ConfigurationDescription description, CustomerCriteriaCondition customerCriteriaCondition) {
+        this.id = id;
+        this.type = type;
+        this.description = description;
+        this.customerCriteriaCondition = customerCriteriaCondition;
+        if(StringUtils.isEmpty(type)) {
+            throw new IllegalArgumentException("type can not be empty");
+        }
+    }
+
+
 
     @Getter
     @AllArgsConstructor

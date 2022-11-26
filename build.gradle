@@ -20,7 +20,7 @@ subprojects {
         testImplementation 'org.mockito:mockito-junit-jupiter:4.9.0'
         implementation 'org.projectlombok:lombok:1.18.24'
         annotationProcessor 'org.projectlombok:lombok:1.18.24'
-
+        testAnnotationProcessor 'org.projectlombok:lombok:1.18.24'
     }
 
     test {
