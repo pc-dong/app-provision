@@ -22,13 +22,4 @@ public class CustomerCriteriaCondition {
     private LocationCondition locationCondition;
 
     private AbTestingCondition abTestingCondition;
-
-    public Mono<Boolean> match(Customer customer) {
-        var customerInfo = null == customer ? ANONYMOUS_CUSTOMER : customer;
-
-        List<Matcher> matchers = List.of(whiteListCondition, locationCondition, abTestingCondition);
-        return Flux.fromIterable(matchers)
-                .flatMap(matcher -> matcher.match(customerInfo))
-                .all(item -> item);
-    }
 }

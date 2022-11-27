@@ -1,19 +1,6 @@
 @startuml
 'https://plantuml.com/class-diagram
 
-interface Configurations #orange {
-    Flux<Configuration> findAllByType(String type)
-    Mono<Configuration> getById(ConfigurationId id)
-    Mono<Configuration> add(Configuration configuration)
-    Mono<Configuration> update(ConfigurationId id, Configuration configuration)
-    Mono<Configuration> publish(ConfigurationId id)
-    Mono<Configuration> disable(ConfigurationId id)
-    Mono<Configuration> delete(ConfigurationId id)
-    Flux<Configuration> findAllPublishedByType(String type)
-    Mono<Void> priority(List<ConfigurationId> ids)
-}
-
-
 
 class Configuration #pink {
     ConfigurationId id
@@ -33,35 +20,39 @@ class CustomerCriteriaCondition {
     LocationCondition locationCondition
     WhiteListCondition whiteListCondition
     ABTestingCondition abTestingCondition
-
-    Mono<Boolean> match(Customer customer)
 }
+
+
 
 class WhiteListCondition {
     List<String> whiteList
-
-    boolean match(CustomerId customerId)
 }
 
 class LocationCondition {
     List<String> adCodes
-
-    boolean match(String adCode)
 }
 
 class ABTestingCondition {
     String experimentId
     String bucketKey
-
-    Mono<Boolean> match(Mono<Assignment> assignmentMono)
 }
 
-CustomerCriteriaCondition *- WhiteListCondition
-CustomerCriteriaCondition *- LocationCondition
-CustomerCriteriaCondition *- ABTestingCondition
+class CustomerCriteriaConditionMatcher implements Matcher {
+}
+
+class WhiteListConditionMatcher implements Matcher {
+}
+
+class LocationConditionMatcher  implements Matcher {
+}
+
+class ABTestingConditionMatcher  implements Matcher {
+}
+
+
 
 interface CustomerABAssignments #orange{
-    Mono<Assignment> getAssignmentOfExperiment(String ExperimentId)
+    Mono<Assignment> getAssignmentOfExperiment(String ExperimentId, Customer customer)
 }
 
 class Assignment {
@@ -69,93 +60,47 @@ class Assignment {
     String bucketKey
 }
 
-Customer  -- CustomerABAssignments
-CustomerABAssignments "1" -- "*" Assignment
-ABTestingCondition o- CustomerABAssignments
-
-
-class ConfigurationDescription {
-    String title
-    String description
-    String key
-    T data
-    T trackingData
-    StaticStatus staticStatus
-    TimeRange timeRange
-    DisplayRule displayRule
-    DateTime createdAt
-    DateTime updatedAt
-    long priority
-
-    DynamicStatus getStatus()
-}
-
-class DisplayRule {
-    DisplayRuleType type
-    int times
-    List<DailyCondition> dailyConditions
-}
-
-enum DisplayRuleType {
-    EVERYTIME
-    FIX_TIMES
-    DAY_FIX_TIMES
-}
-
-class DailyCondition {
-    int dayOfWeek
-    Time startTime
-    Time endTime
-}
-
-class TimeRange {
-    DateTime startDate
-    DateTime endDate
-}
-
-enum StaticStatus {
-    DRAFT
-    PUBLISHED
-    DISABLED
-    DELETED
-}
-
-enum DynamicStatus {
-    DRAFT
-    NOT_BEGIN
-    IN_PROGRESS
-    EXPIRED
-    DISABLED
-    DELETED
-}
-
-interface CustomerCriteriaResult #orange{
-    Mono<Boolean> getResult()
-}
-
 interface CustomerConfigurations #orange{
     FLux<Configuration> flux()
 }
 
-Customer  "1" -R- "1" CustomerConfigurations
+interface CustomerCriteriaResults #orange{
+    Mono<Boolean> getResult(Configuration configuration, Customer customer);
+}
+
+interface Matcher #orange{
+    Mono<Boolean> match(Customer customer)
+}
+
+Configuration "1" -- "*" CustomerCriteriaResults
+
+Customer "1" -- "*" CustomerCriteriaResults
+
+CustomerCriteriaCondition *- WhiteListCondition
+CustomerCriteriaCondition *- LocationCondition
+CustomerCriteriaCondition *- ABTestingCondition
+
+Customer  -- CustomerABAssignments
+CustomerABAssignments "1" -- "*" Assignment
+ABTestingConditionMatcher o-D- CustomerABAssignments
+
+CustomerCriteriaResults -- CustomerConfigurations
+
+CustomerCriteriaResults o- Matcher
+
+Customer  "1" -- "1" CustomerConfigurations
 CustomerConfigurations "1" -- "*" Configuration
 
-Customer  "1" -- "1" CustomerCriteriaResult
-CustomerCriteriaCondition  "1" -L- "1" CustomerCriteriaResult
+CustomerCriteriaConditionMatcher *- CustomerCriteriaCondition
+CustomerCriteriaConditionMatcher o- WhiteListConditionMatcher
+CustomerCriteriaConditionMatcher o- ABTestingConditionMatcher
+CustomerCriteriaConditionMatcher o- LocationConditionMatcher
+WhiteListConditionMatcher *- WhiteListCondition
+ABTestingConditionMatcher *- ABTestingCondition
+LocationConditionMatcher *- LocationCondition
 
-
-
-Configurations "*" -- "1" Configuration
 Configuration *- ConfigurationDescription
 Configuration "1" -- "1" CustomerCriteriaCondition
-
-ConfigurationDescription *- StaticStatus
-ConfigurationDescription o- DynamicStatus
-ConfigurationDescription *- TimeRange
-ConfigurationDescription *- DisplayRule
-DisplayRule *- DisplayRuleType
-DisplayRule *- DailyCondition
-
 
 interface ConfigurationDiffer #orange{
    Mono<DifferResult<T>> diff(String type, String version, Customer customer)
@@ -193,9 +138,9 @@ class IncrementalDiffer implements ConfigurationDiffer {
     Mono<DifferResult<IncrementalDifferItem>> diff(String type, String version, Customer customer)
 }
 
- DifferResult -D-o ConfigurationDiffer
+ DifferResult --o ConfigurationDiffer
 
-ConfigurationDiffer o-D- CustomerConfigurations
+ConfigurationDiffer o-- CustomerConfigurations
 
 FullDiffer o- DifferItem
 

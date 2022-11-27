@@ -1,0 +1,118 @@
+@startuml
+'https://plantuml.com/class-diagram
+
+interface Configurations #orange {
+    Flux<Configuration> findAllByType(String type)
+    Mono<Configuration> getById(ConfigurationId id)
+    Mono<Configuration> add(Configuration configuration)
+    Mono<Configuration> update(ConfigurationId id, Configuration configuration)
+    Mono<Configuration> publish(ConfigurationId id)
+    Mono<Configuration> disable(ConfigurationId id)
+    Mono<Configuration> delete(ConfigurationId id)
+    Flux<Configuration> findAllPublishedByType(String type)
+    Mono<Void> priority(List<ConfigurationId> ids)
+}
+
+
+
+class Configuration #pink {
+    ConfigurationId id
+    String type
+    ConfigurationDescription description
+}
+
+class CustomerCriteriaCondition {
+    LocationCondition locationCondition
+    WhiteListCondition whiteListCondition
+    ABTestingCondition abTestingCondition
+}
+
+
+
+class WhiteListCondition {
+    List<String> whiteList
+}
+
+class LocationCondition {
+    List<String> adCodes
+}
+
+class ABTestingCondition {
+    String experimentId
+    String bucketKey
+}
+
+class ConfigurationDescription {
+    String title
+    String description
+    String key
+    T data
+    T trackingData
+    StaticStatus staticStatus
+    TimeRange timeRange
+    DisplayRule displayRule
+    DateTime createdAt
+    DateTime updatedAt
+    long priority
+
+    DynamicStatus getStatus()
+}
+
+class DisplayRule {
+    DisplayRuleType type
+    int times
+    List<DailyCondition> dailyConditions
+}
+
+enum DisplayRuleType {
+    EVERYTIME
+    FIX_TIMES
+    DAY_FIX_TIMES
+}
+
+class DailyCondition {
+    int dayOfWeek
+    Time startTime
+    Time endTime
+}
+
+class TimeRange {
+    DateTime startDate
+    DateTime endDate
+}
+
+enum StaticStatus {
+    DRAFT
+    PUBLISHED
+    DISABLED
+    DELETED
+}
+
+enum DynamicStatus {
+    DRAFT
+    NOT_BEGIN
+    IN_PROGRESS
+    EXPIRED
+    DISABLED
+    DELETED
+}
+
+CustomerCriteriaCondition *- WhiteListCondition
+CustomerCriteriaCondition *- LocationCondition
+CustomerCriteriaCondition *- ABTestingCondition
+
+Configurations "*" -- "1" Configuration
+Configuration *- ConfigurationDescription
+Configuration "1" -- "1" CustomerCriteriaCondition
+
+ConfigurationDescription *- StaticStatus
+ConfigurationDescription o- DynamicStatus
+ConfigurationDescription *- TimeRange
+ConfigurationDescription *- DisplayRule
+DisplayRule *- DisplayRuleType
+DisplayRule *- DailyCondition
+
+
+
+
+@enduml
