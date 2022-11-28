@@ -7,8 +7,8 @@ import org.springframework.stereotype.Component;
 @Component
 @RequiredArgsConstructor
 public class DifferFactory {
-    private FullDiffer fullDiffer;
-    private IncrementalDiffer incrementalDiffer;
+    private final FullDiffer fullDiffer;
+    private final IncrementalDiffer incrementalDiffer;
 
 
     public ConfigurationDiffer getByType(String type) {
