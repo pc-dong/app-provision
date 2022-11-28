@@ -80,24 +80,20 @@ CustomerCriteriaCondition *- WhiteListCondition
 CustomerCriteriaCondition *- LocationCondition
 CustomerCriteriaCondition *- ABTestingCondition
 
-Customer  -- CustomerABAssignments
+Customer  -R- CustomerABAssignments
 CustomerABAssignments "1" -- "*" Assignment
-ABTestingConditionMatcher o-D- CustomerABAssignments
+ABTestingConditionMatcher o-- CustomerABAssignments
 
-CustomerCriteriaResults -- CustomerConfigurations
+CustomerConfigurations -D- CustomerCriteriaResults
 
 CustomerCriteriaResults o- Matcher
 
 Customer  "1" -- "1" CustomerConfigurations
 CustomerConfigurations "1" -- "*" Configuration
 
-CustomerCriteriaConditionMatcher *- CustomerCriteriaCondition
 CustomerCriteriaConditionMatcher o- WhiteListConditionMatcher
 CustomerCriteriaConditionMatcher o- ABTestingConditionMatcher
 CustomerCriteriaConditionMatcher o- LocationConditionMatcher
-WhiteListConditionMatcher *- WhiteListCondition
-ABTestingConditionMatcher *- ABTestingCondition
-LocationConditionMatcher *- LocationCondition
 
 Configuration *- ConfigurationDescription
 Configuration "1" -- "1" CustomerCriteriaCondition
@@ -138,7 +134,7 @@ class IncrementalDiffer implements ConfigurationDiffer {
     Mono<DifferResult<IncrementalDifferItem>> diff(String type, String version, Customer customer)
 }
 
- DifferResult --o ConfigurationDiffer
+DifferResult --o ConfigurationDiffer
 
 ConfigurationDiffer o-- CustomerConfigurations
 

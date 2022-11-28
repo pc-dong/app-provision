@@ -13,9 +13,9 @@ public class Customer {
 
     public static final Customer ANONYMOUS_CUSTOMER = new Customer();
 
-    private CustomerId customerId;
-    private String adCode;
-    private CustomerLevel customerLevel;
+    protected CustomerId customerId;
+    protected String adCode;
+    protected CustomerLevel customerLevel;
 
     @AllArgsConstructor
     @Getter
