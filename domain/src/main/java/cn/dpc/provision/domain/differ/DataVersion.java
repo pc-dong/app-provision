@@ -113,9 +113,9 @@ public class DataVersion {
                     .build();
         }
 
-        public String toVersion() {
+        public String toString() {
             String lastUpdateTimeStr = null == lastUpdateTime ? "" : String.valueOf(lastUpdateTime.toInstant(ZoneOffset.UTC).toEpochMilli());
-            String lastStartTimeStr = null == lastStartTime ? "" : "-" + lastUpdateTime.toInstant(ZoneOffset.UTC).toEpochMilli();
+            String lastStartTimeStr = null == lastStartTime ? "" : "-" + lastStartTime.toInstant(ZoneOffset.UTC).toEpochMilli();
             return lastUpdateTimeStr + lastStartTimeStr;
         }
 

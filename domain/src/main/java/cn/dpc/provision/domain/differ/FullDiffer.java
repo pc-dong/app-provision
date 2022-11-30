@@ -10,14 +10,13 @@ import reactor.core.publisher.Mono;
 import java.time.LocalDateTime;
 import java.util.Comparator;
 import java.util.List;
-import java.util.Optional;
-import java.util.stream.Collectors;
+import java.util.Objects;
+import java.util.function.Function;
 
 import static cn.dpc.provision.domain.DynamicStatus.IN_PROGRESS;
 import static cn.dpc.provision.domain.differ.DataVersion.empty;
 import static cn.dpc.provision.domain.differ.DifferResult.HAS_NO_UPDATE;
 import static cn.dpc.provision.domain.differ.DifferResult.USE_DEFAULT;
-import static java.util.Comparator.reverseOrder;
 
 @RequiredArgsConstructor
 @Component
@@ -35,29 +34,32 @@ public class FullDiffer implements ConfigurationDiffer {
     }
 
     private DifferResult toDifferResult(DataVersion dataVersion, LoginStatus loginStatus, List<Configuration> configurations) {
-        if(configurations.isEmpty()) {
+        if (configurations.isEmpty()) {
             return empty == dataVersion ? HAS_NO_UPDATE : USE_DEFAULT;
         }
 
-        LocalDateTime lastUpdateTime = configurations.stream().sorted((Configuration o1, Configuration o2) ->
-                o2.getDescription().getUpdatedAt().compareTo(o2.getDescription().getUpdatedAt())
-        ).findFirst().map(configuration -> configuration.getDescription().getUpdatedAt()).orElse(null);
+        LocalDateTime lastUpdateTime = configurations.stream().map(Configuration::getDescription)
+                .map(ConfigurationDescription::getUpdatedAt)
+                .filter(Objects::nonNull)
+                .max(Comparator.comparing(Function.identity()))
+                .orElse(null);
 
 
-        LocalDateTime lastStartTime = configurations.stream().sorted((Configuration o1, Configuration o2) ->
-                Optional.ofNullable(o2.getDescription()).map(ConfigurationDescription::getTimeRange)
-                        .map(TimeRange::getStartDate).orElse(LocalDateTime.MIN)
-                        .compareTo(Optional.ofNullable(o1.getDescription()).map(ConfigurationDescription::getTimeRange)
-                                .map(TimeRange::getStartDate).orElse(LocalDateTime.MIN))
-        ).findFirst().map(configuration -> configuration.getDescription().getUpdatedAt()).orElse(null);
+        LocalDateTime lastStartTime = configurations.stream().map(Configuration::getDescription)
+                .map(ConfigurationDescription::getTimeRange)
+                .filter(Objects::nonNull)
+                .map(TimeRange::getStartDate)
+                .filter(Objects::nonNull)
+                .max(Comparator.comparing(Function.identity()))
+                .orElse(null);
 
-        DataVersion resultVersion =  new DataVersion(DataVersion.TimeVersionObject.create(lastUpdateTime, lastStartTime).toVersion(), loginStatus);
-        if(resultVersion.equals(dataVersion)) {
+        DataVersion resultVersion = new DataVersion(DataVersion.TimeVersionObject.create(lastUpdateTime, lastStartTime).toString(), loginStatus);
+        if (resultVersion.equals(dataVersion)) {
             return HAS_NO_UPDATE;
         }
 
-       List<DifferContent> contents = DifferContent.from(configurations);
+        List<DifferContent> contents = DifferContent.from(configurations);
 
-       return new DifferResult(true, false, contents, resultVersion.toString());
+        return new DifferResult(true, false, contents, resultVersion.toString());
     }
 }

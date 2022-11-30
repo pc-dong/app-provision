@@ -4,9 +4,11 @@ import cn.dpc.provision.domain.condition.CustomerCriteriaCondition;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.ToString;
 import org.apache.commons.lang3.StringUtils;
 
 @Getter
+@ToString
 public class Configuration {
     @Setter
     private ConfigurationId id;

@@ -45,9 +45,21 @@ public class DifferResult {
                              DisplayRule displayRule,
                              LocalDateTime updatedAt,
                              LocalDateTime expiredAt,
-                             long priority){
+                             long priority) {
+        public static DifferResult.DifferItem from(Configuration configuration) {
+            return new DifferResult.DifferItem(configuration.getId().getId(),
+                    configuration.getDescription().getKey(),
+                    configuration.getDescription().getData(),
+                    configuration.getDescription().getTrackingData(),
+                    configuration.getDescription().getDisplayRule(),
+                    configuration.getDescription().getUpdatedAt(),
+                    Optional.ofNullable(configuration.getDescription().getTimeRange()).map(TimeRange::getEndDate)
+                            .orElse(null),
+                    configuration.getDescription().getPriority());
+        }
+    }
 
-    };
+    ;
 
     public record DifferContent(String key,
                                 long priority,
@@ -60,23 +72,16 @@ public class DifferResult {
                         String key = entry.getKey();
                         List<DifferResult.DifferItem> items = entry.getValue().stream()
                                 .filter(predicate)
-                                .map(configuration ->
-                                        new DifferResult.DifferItem(configuration.getId().getId(),
-                                                configuration.getDescription().getKey(),
-                                                configuration.getDescription().getData(),
-                                                configuration.getDescription().getTrackingData(),
-                                                configuration.getDescription().getDisplayRule(),
-                                                configuration.getDescription().getUpdatedAt(),
-                                                Optional.ofNullable(configuration.getDescription().getTimeRange()).map(TimeRange::getEndDate)
-                                                        .orElse(null),
-                                                configuration.getDescription().getPriority()))
+                                .map(DifferItem::from)
                                 .sorted(Comparator.comparing(DifferResult.DifferItem::priority)
                                         .thenComparing(DifferResult.DifferItem::updatedAt, reverseOrder()))
                                 .collect(Collectors.toList());
-                        return new DifferResult.DifferContent(key, items.get(0).priority(), items.get(0).updatedAt(), items);
+                        return new DifferResult.DifferContent(key, items.isEmpty() ? 0 : items.get(0).priority(),
+                                items.isEmpty() ? LocalDateTime.MIN : items.get(0).updatedAt(), items);
                     }).sorted(Comparator.comparing(DifferResult.DifferContent::priority).thenComparing(DifferResult.DifferContent::updatedAt, reverseOrder()))
                     .collect(Collectors.toList());
         }
+
         public static List<DifferResult.DifferContent> from(List<Configuration> configurations) {
             return from(configurations, configuration -> true);
         }

@@ -1,14 +1,12 @@
 package cn.dpc.provision.domain;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 @AllArgsConstructor
 @NoArgsConstructor
 @Getter
 @Builder
+@ToString
 public class Customer {
 
     public static final Customer ANONYMOUS_CUSTOMER = new Customer();
