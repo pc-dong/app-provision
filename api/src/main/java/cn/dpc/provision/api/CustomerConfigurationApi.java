@@ -21,9 +21,9 @@ import static cn.dpc.provision.domain.DynamicStatus.IN_PROGRESS;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("customer-configurations")
+@RequestMapping("/customer-configurations")
 @Component
-public class CustomerConfigurationController {
+public class CustomerConfigurationApi {
     private final CustomerConfigurations configurations;
     private final DifferFactory differFactory;
 
@@ -41,7 +41,8 @@ public class CustomerConfigurationController {
         return Flux.fromIterable(request.getTypeVersionList())
                 .flatMap(typeVersion -> Optional.ofNullable(differFactory.getByType(typeVersion.type()))
                         .map(differ -> differ.diff(typeVersion.type(), typeVersion.version(), request.parseCustomer())
-                                .map(differResult -> new DiffResponse(typeVersion.type(), differResult)))
+                                .map(differResult -> new DiffResponse(typeVersion.type(), differResult))
+                                .onErrorReturn(new DiffResponse(typeVersion.type(), null)))
                         .orElse(Mono.just(new DiffResponse(typeVersion.type(), null)))
                 );
     }

@@ -1,6 +1,7 @@
 package cn.dpc.provision.api.dto;
 
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -8,6 +9,7 @@ import java.util.List;
 import java.util.stream.IntStream;
 
 @Data
+@EqualsAndHashCode(callSuper=false)
 public class DiffRequest extends RealTimeRequest{
     private String types;
     private String versions;

@@ -6,9 +6,9 @@ import org.springframework.util.StringUtils;
 
 @Data
 public class RealTimeRequest {
-    protected String customerId;
-    protected String adCode;
-    protected Customer.CustomerLevel customerLevel;
+    protected String customerId = "";
+    protected String adCode = "";
+    protected Customer.CustomerLevel customerLevel = null;
 
     public Customer parseCustomer() {
         return Customer.builder()

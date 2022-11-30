@@ -27,16 +27,14 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(SpringExtension.class)
-@WebFluxTest(ConfigurationApi.class)
+@WebFluxTest(value = ConfigurationApi.class, properties = "spring.main.lazy-initialization=true")
 @ContextConfiguration(classes = TestConfiguration.class)
-class ConfigurationApiTest {
+class ConfigurationApiTest extends ConfigurationTestBase{
     @Autowired
     WebTestClient webClient;
 
     @MockBean
     Configurations configurations;
-
-    private final ObjectMapper objectMapper = new ObjectMapper();
 
     @Test
     public void should_add_new_configuration_success() {
@@ -109,27 +107,5 @@ class ConfigurationApiTest {
                 .exchange()
                 .expectStatus()
                 .isNotFound();
-    }
-
-    @SneakyThrows
-    private ConfigurationRequest generateConfigurationRequest(String type) {
-        var request = new ConfigurationRequest();
-        request.setType(type);
-        request.setKey("TEST_KEY");
-        request.setData(objectMapper.readValue("{\"a\": \"b\"}", Object.class));
-        request.setTrackingData(objectMapper.readValue("{\"c\": \"d\"}", Object.class));
-        request.setTitle("title");
-        request.setDescription("description");
-        request.setDisplayRule(new DisplayRule());
-        request.setTimeRange(new TimeRange(LocalDateTime.now(), LocalDateTime.now().plusHours(1)));
-        request.setCustomerCriteriaCondition(new CustomerCriteriaCondition());
-        return request;
-    }
-
-    @SneakyThrows
-    private Configuration generateConfiguration(String type) {
-        Configuration configuration = generateConfigurationRequest(type).toConfiguration();
-        configuration.setId(new Configuration.ConfigurationId(UUID.randomUUID().toString()));
-        return configuration;
     }
 }
