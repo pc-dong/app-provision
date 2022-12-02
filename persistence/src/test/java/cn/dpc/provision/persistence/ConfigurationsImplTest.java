@@ -24,7 +24,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.NONE, classes = TestConfiguration.class)
 @ActiveProfiles("test")
-class ConfigurationsImplTest {
+class ConfigurationsImplTest extends ConfigurationTestBase{
     @Autowired
     ConfigurationDBRepository repository;
 
@@ -268,25 +268,5 @@ class ConfigurationsImplTest {
         configurations.getById(configuration3.getId())
                 .as(StepVerifier::create)
                 .expectNextMatches(item -> item.getDescription().getPriority() == 1);
-    }
-
-
-    private static Configuration generateConfiguration(String id, String key) {
-        return generateConfiguration(id, key, null);
-    }
-
-    private static Configuration generateConfiguration(String id, String key, StaticStatus staticStatus) {
-        return generateConfiguration(id, key, staticStatus, null);
-    }
-
-    private static Configuration generateConfiguration(String id, String key, StaticStatus staticStatus, TimeRange timeRange) {
-        Configuration configuration = new Configuration(null == id ? null : Configuration.ConfigurationId.of(id), "type", ConfigurationDescription.builder()
-                .createdAt(LocalDateTime.now())
-                .data(Map.of("a", "b"))
-                .key(key)
-                .timeRange(timeRange)
-                .staticStatus(staticStatus)
-                .build(), new CustomerCriteriaCondition());
-        return configuration;
     }
 }
