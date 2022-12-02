@@ -92,8 +92,11 @@ Customer  "1" -- "1" CustomerConfigurations
 CustomerConfigurations "1" -- "*" Configuration
 
 CustomerCriteriaConditionMatcher o- WhiteListConditionMatcher
+WhiteListConditionMatcher o- WhiteListCondition
 CustomerCriteriaConditionMatcher o- ABTestingConditionMatcher
+ABTestingConditionMatcher o- ABTestingCondition
 CustomerCriteriaConditionMatcher o- LocationConditionMatcher
+LocationConditionMatcher o- LocationCondition
 
 Configuration *- ConfigurationDescription
 Configuration "1" -- "1" CustomerCriteriaCondition
@@ -107,7 +110,7 @@ class DifferResult #pink{
     String type
     boolean hasUpdate
     boolean useDefault
-    List<T> content
+    List<DifferItem> content
     String version
     DateTime expireTime
 }
@@ -122,24 +125,19 @@ class DifferItem #pink{
     long priority
 }
 
-class IncrementalDifferItem extends DifferItem{
-    boolean deleted
-}
 
 class FullDiffer implements ConfigurationDiffer {
     Mono<DifferResult<DifferItem>> diff(String type, String version, Customer customer)
 }
 
 class IncrementalDiffer implements ConfigurationDiffer {
-    Mono<DifferResult<IncrementalDifferItem>> diff(String type, String version, Customer customer)
+    Mono<DifferResult<DifferItem>> diff(String type, String version, Customer customer)
 }
 
 DifferResult --o ConfigurationDiffer
+DifferResult *- DifferItem
 
 ConfigurationDiffer o-- CustomerConfigurations
 
-FullDiffer o- DifferItem
-
-IncrementalDiffer o- IncrementalDifferItem
 
 @enduml
