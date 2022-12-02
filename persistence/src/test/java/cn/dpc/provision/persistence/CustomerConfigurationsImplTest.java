@@ -16,7 +16,7 @@ import java.util.UUID;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 class CustomerConfigurationsImplTest extends ConfigurationTestBase {
@@ -46,5 +46,12 @@ class CustomerConfigurationsImplTest extends ConfigurationTestBase {
                 .as(StepVerifier::create)
                 .expectNextCount(3)
                 .verifyComplete();
+
+        customerConfigurations.flux("type", new Customer())
+                .as(StepVerifier::create)
+                .expectNextCount(3)
+                .verifyComplete();
+
+        verify(repository, times(1)).findByType(eq("type"), any());
     }
 }
