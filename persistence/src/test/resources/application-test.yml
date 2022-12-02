@@ -1,0 +1,19 @@
+spring:
+  main:
+    lazy-initialization: true
+  data:
+    couchbase:
+      repositories:
+        type: auto
+      auto-index: false
+      bucket-name: bucket1
+
+  couchbase:
+    connection-string: couchbase://127.0.0.1
+    username: user
+    password: password
+
+logging:
+  level:
+    root: info
+    org.springframework.data.couchbase: trace

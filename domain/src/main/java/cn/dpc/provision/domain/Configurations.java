@@ -21,7 +21,7 @@ public interface Configurations {
 
     Mono<Void> delete(ConfigurationId id);
 
-    Flux<Configuration> findAllPublishedByType(String type);
+    Flux<Configuration> findAllAvailableByType(String type);
 
     Mono<Void> priority(List<ConfigurationId> ids);
 }

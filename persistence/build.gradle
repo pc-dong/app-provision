@@ -7,4 +7,5 @@ dependencies {
     implementation project(':domain')
     implementation 'org.springframework.boot:spring-boot-starter-data-couchbase-reactive'
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
+//    testImplementation 'org.testcontainers:couchbase:1.17.6'
 }

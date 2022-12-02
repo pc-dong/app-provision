@@ -22,6 +22,7 @@ subprojects {
         implementation 'org.springframework:spring-context:5.3.23'
         annotationProcessor 'org.projectlombok:lombok:1.18.24'
         testAnnotationProcessor 'org.projectlombok:lombok:1.18.24'
+        testImplementation 'io.projectreactor:reactor-test:3.5.0'
     }
 
     test {

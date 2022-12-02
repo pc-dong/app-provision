@@ -14,66 +14,77 @@ import java.util.UUID;
 @Setter
 @ToString
 public class ConfigurationDescription {
-   private String title;
-   private String description;
-   private String key;
-   private Object data;
-   private Object trackingData;
-   private StaticStatus staticStatus;
-   private TimeRange timeRange;
-   private DisplayRule displayRule;
-   private LocalDateTime createdAt;
-   private LocalDateTime updatedAt;
-   private long priority;
+    private String title;
+    private String description;
+    private String key;
+    private Object data;
+    private Object trackingData;
+    private StaticStatus staticStatus;
+    private TimeRange timeRange;
+    private DisplayRule displayRule;
+    private LocalDateTime createdAt;
+    private LocalDateTime updatedAt;
+    private long priority;
 
-   public static ConfigurationDescriptionInternalBuilder builder() {
-      return new ConfigurationDescriptionInternalBuilder();
-   }
-   public DynamicStatus getStatus() {
-      switch (staticStatus) {
+    public static ConfigurationDescriptionInternalBuilder builder() {
+        return new ConfigurationDescriptionInternalBuilder();
+    }
 
-         case DISABLED: return DynamicStatus.DISABLED;
-         case DELETED: return DynamicStatus.DELETED;
-         case PUBLISHED:
-            boolean notBegin = Optional.ofNullable(timeRange).map(TimeRange::getStartDate)
-                    .map(startTime -> startTime.isAfter(LocalDateTime.now()))
-                    .orElse(false);
-            if(notBegin) {
-               return DynamicStatus.NOT_BEGIN;
-            }
+    public DynamicStatus getStatus() {
+        switch (staticStatus) {
 
-            boolean expired = Optional.ofNullable(timeRange).map(TimeRange::getEndDate)
-                    .map(endTime -> endTime.isBefore(LocalDateTime.now())).orElse(false);
-            if(expired) {
-               return DynamicStatus.EXPIRED;
-            }
+            case DISABLED:
+                return DynamicStatus.DISABLED;
+            case DELETED:
+                return DynamicStatus.DELETED;
+            case PUBLISHED:
+                boolean notBegin = Optional.ofNullable(timeRange).map(TimeRange::getStartDate)
+                        .map(startTime -> startTime.isAfter(LocalDateTime.now()))
+                        .orElse(false);
+                if (notBegin) {
+                    return DynamicStatus.NOT_BEGIN;
+                }
 
-            return DynamicStatus.IN_PROGRESS;
-         case DRAFT:
-         default: return DynamicStatus.DRAFT;
-      }
-   }
+                boolean expired = Optional.ofNullable(timeRange).map(TimeRange::getEndDate)
+                        .map(endTime -> endTime.isBefore(LocalDateTime.now())).orElse(false);
+                if (expired) {
+                    return DynamicStatus.EXPIRED;
+                }
 
-   public static class ConfigurationDescriptionInternalBuilder extends ConfigurationDescriptionBuilder {
+                return DynamicStatus.IN_PROGRESS;
+            case DRAFT:
+            default:
+                return DynamicStatus.DRAFT;
+        }
+    }
 
-      ConfigurationDescriptionInternalBuilder() {
-         super();
-      }
+    public boolean isAvailable() {
+        return Optional.ofNullable(timeRange).map(TimeRange::getEndDate)
+                .map(endTime -> endTime.isAfter(LocalDateTime.now())).orElse(true)
+                && (this.staticStatus == StaticStatus.DRAFT || this.staticStatus == StaticStatus.PUBLISHED);
+    }
 
-      @Override public ConfigurationDescription build() {
-         ConfigurationDescription foo = super.build();
-         foo.init();
-         return foo;
-      }
-   }
+    public static class ConfigurationDescriptionInternalBuilder extends ConfigurationDescriptionBuilder {
 
-   private void init() {
-      if(null == key || key.trim().length() ==0) {
-         key = UUID.randomUUID().toString();
-      }
+        ConfigurationDescriptionInternalBuilder() {
+            super();
+        }
 
-      if(null == staticStatus) {
-         staticStatus = StaticStatus.DRAFT;
-      }
-   }
+        @Override
+        public ConfigurationDescription build() {
+            ConfigurationDescription foo = super.build();
+            foo.init();
+            return foo;
+        }
+    }
+
+    private void init() {
+        if (null == key || key.trim().length() == 0) {
+            key = UUID.randomUUID().toString();
+        }
+
+        if (null == staticStatus) {
+            staticStatus = StaticStatus.DRAFT;
+        }
+    }
 }

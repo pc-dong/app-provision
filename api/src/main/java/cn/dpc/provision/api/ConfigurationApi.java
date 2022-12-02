@@ -40,7 +40,7 @@ public class ConfigurationApi {
 
     @GetMapping
     Flux<ConfigurationResponse> listAll(String type) {
-        return configurations.findAllPublishedByType(type)
+        return configurations.findAllAvailableByType(type)
                 .map(ConfigurationResponse::from);
     }
 
@@ -60,9 +60,9 @@ public class ConfigurationApi {
         return configurations.disable(new Configuration.ConfigurationId(id));
     }
 
-    @GetMapping("/{type}/published")
-    Flux<ConfigurationResponse> getPublishedList(@PathVariable String type) {
-        return configurations.findAllPublishedByType(type)
+    @GetMapping("/{type}/available")
+    Flux<ConfigurationResponse> getAvailableList(@PathVariable String type) {
+        return configurations.findAllAvailableByType(type)
                 .map(ConfigurationResponse::from);
     }
 
