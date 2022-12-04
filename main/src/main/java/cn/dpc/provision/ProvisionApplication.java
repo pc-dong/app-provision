@@ -1,4 +1,4 @@
-package cn.dpc.provisoin;
+package cn.dpc.provision;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 

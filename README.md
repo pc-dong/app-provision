@@ -67,3 +67,13 @@ docker-compose up -d
 ./gradlew bootRun
 ``` 
 
+## RSocket命令行请求样例
+
+```shell
+> rsc --route=customer-configurations.diff --channel -m '{"customerId": "111","adCode":"610101","customerLevel":"VIP"}' --mmt application/json  --dmt application/json --data=- tcp://localhost:7001
+
+> {"type":"FULL_TEST"}
+{"type":"FULL_TEST","differResult":{"hasUpdate":false,"useDefault":false,"content":null,"version":null}}
+> {"type":"INCR_TEST"}
+{"type":"INCR_TEST","differResult":{"hasUpdate":false,"useDefault":false,"content":null,"version":null}}
+```

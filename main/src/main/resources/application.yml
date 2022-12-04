@@ -3,7 +3,7 @@ server:
 
 spring:
   main:
-    lazy-initialization: true
+    lazy-initialization: false
   data:
     couchbase:
       repositories:
@@ -17,10 +17,10 @@ spring:
     password: password
   rsocket:
     server:
-      port: 7000
+      port: 7001
       transport: tcp
 
 logging:
   level:
-    root: info
+    root: debug
     org.springframework.data.couchbase: trace
