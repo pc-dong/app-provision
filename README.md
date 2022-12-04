@@ -7,6 +7,7 @@
 # 技术栈
 * Java 17
 * Spring Web Flux
+* RSocket
 * Spring Data
 * Couchbase
 * caffeine

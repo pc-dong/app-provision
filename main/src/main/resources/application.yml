@@ -15,6 +15,10 @@ spring:
     connection-string: couchbase://127.0.0.1
     username: user
     password: password
+  rsocket:
+    server:
+      port: 7000
+      transport: tcp
 
 logging:
   level:

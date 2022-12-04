@@ -22,7 +22,6 @@ import static cn.dpc.provision.domain.DynamicStatus.IN_PROGRESS;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/customer-configurations")
-@Component
 public class CustomerConfigurationApi {
     private final CustomerConfigurations configurations;
     private final DifferFactory differFactory;
