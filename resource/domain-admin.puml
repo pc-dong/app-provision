@@ -14,7 +14,6 @@ interface Configurations #orange {
 }
 
 
-
 class Configuration #pink {
     ConfigurationId id
     String type
@@ -113,6 +112,67 @@ DisplayRule *- DisplayRuleType
 DisplayRule *- DailyCondition
 
 
+interface FeatureFlags #orange {
+    Mono<FeatureFlag> getById(FeatureFlagId id)
+    Mono<FeatureFlag> add(FeatureFlag featureFlag)
+    Mono<FeatureFlag> update(FeatureFlagId id, FeatureFlag featureFlag)
+    Mono<FeatureFlag> publish(FeatureFlagId id)
+    Mono<FeatureFlag> disable(FeatureFlagId id)
+    Mono<FeatureFlag> delete(FeatureFlagId id)
+    Flux<FeatureFlag> findAllPublished()
+    }
 
+class FeatureFlag #pink {
+    FeatureFlagId id
+    FeatureFlagDescription description
+}
+
+class FeatureFlagDescription {
+    String name
+    String description
+    String key
+    FeatureFlagDataType dataType
+    FeatureFlagStatus status
+    FeatureConfigTemplate template
+}
+
+enum FeatureFlagDataType {
+    STRING
+    BOOLEAN
+    NUMBER
+    JSON_STRING
+    JSON
+}
+
+class FeatureConfigTemplate {
+    List<FeatureConfigTemplateItem> items
+}
+
+class FeatureConfigTemplateItem {
+    String key
+    String name
+    String description
+    FeatureConfigDataType dataType
+    Object defaultValue
+    List<FeatureConfigTemplateItem> subItems
+}
+
+enum FeatureConfigDataType {
+    STRING
+    BOOLEAN
+    NUMBER
+    OBJECT
+    LIST_STRING
+    LIST_NUMBER
+    LIST_OBJECT
+}
+
+FeatureFlags "1" -- "*" FeatureFlag
+FeatureFlag *- FeatureFlagDescription
+FeatureFlagDescription *- FeatureFlagDataType
+FeatureFlagDescription *- FeatureConfigTemplate
+FeatureConfigTemplate *- FeatureConfigTemplateItem
+FeatureConfigTemplateItem *- FeatureConfigDataType
+FeatureFlag "1" -- "1" Configurations
 
 @enduml
