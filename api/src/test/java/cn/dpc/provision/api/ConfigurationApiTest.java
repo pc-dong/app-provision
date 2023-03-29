@@ -3,11 +3,8 @@ package cn.dpc.provision.api;
 import cn.dpc.provision.api.dto.ConfigurationRequest;
 import cn.dpc.provision.api.dto.ConfigurationResponse;
 import cn.dpc.provision.domain.*;
-import cn.dpc.provision.domain.condition.CustomerCriteriaCondition;
 import cn.dpc.provision.domain.exception.ConfigurationNotFoundException;
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import lombok.SneakyThrows;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,9 +14,6 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.reactive.server.WebTestClient;
 import reactor.core.publisher.Mono;
-
-import java.time.LocalDateTime;
-import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -48,7 +42,7 @@ class ConfigurationApiTest extends ConfigurationTestBase{
                 .expectBody(ConfigurationResponse.class)
                 .value(response -> {
                     assertTrue(response.getId().length() > 0);
-                    assertEquals(response.getStaticStatus(), StaticStatus.DRAFT);
+                    assertEquals(response.getStaticStatus(), ConfigurationDescription.StaticStatus.DRAFT);
                 });
     }
 
@@ -78,7 +72,7 @@ class ConfigurationApiTest extends ConfigurationTestBase{
                 .expectBody(ConfigurationResponse.class)
                 .value(response -> {
                     assertTrue(response.getId().length() > 0);
-                    assertEquals(response.getStaticStatus(), StaticStatus.DRAFT);
+                    assertEquals(response.getStaticStatus(), ConfigurationDescription.StaticStatus.DRAFT);
                 });
     }
 

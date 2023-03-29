@@ -13,7 +13,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.function.Function;
 
-import static cn.dpc.provision.domain.DynamicStatus.IN_PROGRESS;
+import static cn.dpc.provision.domain.ConfigurationDescription.DynamicStatus.IN_PROGRESS;
 import static cn.dpc.provision.domain.differ.DataVersion.empty;
 import static cn.dpc.provision.domain.differ.DifferResult.HAS_NO_UPDATE;
 import static cn.dpc.provision.domain.differ.DifferResult.USE_DEFAULT;
@@ -48,7 +48,7 @@ public class FullDiffer implements ConfigurationDiffer {
         LocalDateTime lastStartTime = configurations.stream().map(Configuration::getDescription)
                 .map(ConfigurationDescription::getTimeRange)
                 .filter(Objects::nonNull)
-                .map(TimeRange::getStartDate)
+                .map(ConfigurationDescription.TimeRange::getStartDate)
                 .filter(Objects::nonNull)
                 .max(Comparator.comparing(Function.identity()))
                 .orElse(null);

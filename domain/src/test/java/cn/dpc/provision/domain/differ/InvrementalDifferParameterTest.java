@@ -29,7 +29,7 @@ import static org.mockito.Mockito.when;
 
 public class InvrementalDifferParameterTest extends ConfigurationTestBase {
 
-    public static final List<StaticStatus> ORIGINAL_STATUS = List.of(StaticStatus.values());
+    public static final List<ConfigurationDescription.StaticStatus> ORIGINAL_STATUS = List.of(ConfigurationDescription.StaticStatus.values());
 
     public static record DifferParamTestData(List<Configuration> configurations,
                                              String type,
@@ -91,7 +91,7 @@ public class InvrementalDifferParameterTest extends ConfigurationTestBase {
 
         List<List<LocalDateTime>> updateTimes = getUpdateTimes(cnt);
 
-        List<List<StaticStatus>> statuses = getStatuses(cnt);
+        List<List<ConfigurationDescription.StaticStatus>> statuses = getStatuses(cnt);
 
         statuses.forEach(status -> {
             startTimes.forEach(startTime -> {
@@ -107,7 +107,7 @@ public class InvrementalDifferParameterTest extends ConfigurationTestBase {
                                 updateTimeList.add(updateTime.get(index));
 
                                 CustomerCriteriaCondition condition = CustomerCriteriaCondition.builder().build();
-                                return generateConfiguration("id" + index, "key1", new HashMap<>(), status.get(index), new TimeRange(startTime.get(index), null), condition, "type", updateTime.get(index));
+                                return generateConfiguration("id" + index, "key1", new HashMap<>(), status.get(index), new ConfigurationDescription.TimeRange(startTime.get(index), null), condition, "type", updateTime.get(index));
                             }).collect(Collectors.toList());
 
                     data.addAll(IntStream.range(0, cnt)
@@ -120,7 +120,7 @@ public class InvrementalDifferParameterTest extends ConfigurationTestBase {
                                 updateTimeList.add(updateTime.get(index));
 
                                 CustomerCriteriaCondition condition = CustomerCriteriaCondition.builder().build();
-                                return generateConfiguration("idd" + index, "key2", new HashMap<>(), status.get(index), new TimeRange(startTime.get(index), null), condition, "type", updateTime.get(index));
+                                return generateConfiguration("idd" + index, "key2", new HashMap<>(), status.get(index), new ConfigurationDescription.TimeRange(startTime.get(index), null), condition, "type", updateTime.get(index));
                             }).collect(Collectors.toList()));
 
 
@@ -136,11 +136,11 @@ public class InvrementalDifferParameterTest extends ConfigurationTestBase {
         return result;
     }
 
-    private static List<List<StaticStatus>> getStatuses(int cnt) {
-        List<StaticStatus> list = new ArrayList<>();
-        List<List<StaticStatus>> result = new ArrayList<>();
+    private static List<List<ConfigurationDescription.StaticStatus>> getStatuses(int cnt) {
+        List<ConfigurationDescription.StaticStatus> list = new ArrayList<>();
+        List<List<ConfigurationDescription.StaticStatus>> result = new ArrayList<>();
         for (int i = 0; i < Math.pow(4, cnt); i++) {
-            ArrayList<StaticStatus> init = new ArrayList<>();
+            ArrayList<ConfigurationDescription.StaticStatus> init = new ArrayList<>();
             for (int j = 0; j < cnt; j++) {
                 init.add(null);
             }
@@ -250,7 +250,7 @@ public class InvrementalDifferParameterTest extends ConfigurationTestBase {
                 .collect(Collectors.groupingBy(configuration -> configuration.getDescription().getKey()))
                 .entrySet().stream().map(entry -> new DifferContent(entry.getKey(), 0, null,
                         entry.getValue().stream()
-                                .filter(configuration -> configuration.getDescription().getStatus() == DynamicStatus.IN_PROGRESS)
+                                .filter(configuration -> configuration.getDescription().getStatus() == ConfigurationDescription.DynamicStatus.IN_PROGRESS)
                                 .map(DifferResult.DifferItem::from)
                                 .collect(Collectors.toList())))
                 .collect(Collectors.toList());
@@ -259,9 +259,9 @@ public class InvrementalDifferParameterTest extends ConfigurationTestBase {
                 .collect(Collectors.groupingBy(configuration -> configuration.getDescription().getKey()))
                 .entrySet().stream().map(entry -> new DifferContent(entry.getKey(), 0, null,
                         entry.getValue().stream()
-                                .filter(configuration -> configuration.getDescription().getStatus() == DynamicStatus.IN_PROGRESS)
+                                .filter(configuration -> configuration.getDescription().getStatus() == ConfigurationDescription.DynamicStatus.IN_PROGRESS)
                                 .filter(configuration -> TimeVersionObject.create(timeVersion.getLastUpdateTime().minusHours(1), timeVersion.getLastStartTime())
-                                        .hasUpdated(configuration.getDescription().getUpdatedAt(), Optional.ofNullable(configuration.getDescription().getTimeRange()).map(TimeRange::getStartDate).orElse(null))
+                                        .hasUpdated(configuration.getDescription().getUpdatedAt(), Optional.ofNullable(configuration.getDescription().getTimeRange()).map(ConfigurationDescription.TimeRange::getStartDate).orElse(null))
                                 )
                                 .map(DifferResult.DifferItem::from)
                                 .collect(Collectors.toList())))

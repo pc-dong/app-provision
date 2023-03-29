@@ -2,8 +2,8 @@ package cn.dpc.provision.persistence;
 
 import cn.dpc.provision.domain.Configuration;
 import cn.dpc.provision.domain.Configuration.ConfigurationId;
+import cn.dpc.provision.domain.ConfigurationDescription;
 import cn.dpc.provision.domain.Configurations;
-import cn.dpc.provision.domain.StaticStatus;
 import cn.dpc.provision.domain.exception.ConfigurationNotFoundException;
 import cn.dpc.provision.domain.exception.StatusNotMatchException;
 import cn.dpc.provision.persistence.repository.ConfigurationDB;
@@ -13,7 +13,6 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.domain.Sort.Order;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.transaction.reactive.TransactionalOperator;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
@@ -22,7 +21,7 @@ import java.util.List;
 import java.util.UUID;
 import java.util.stream.IntStream;
 
-import static cn.dpc.provision.domain.StaticStatus.*;
+import static cn.dpc.provision.domain.ConfigurationDescription.StaticStatus.*;
 import static java.util.stream.Collectors.toMap;
 import static org.springframework.data.domain.Sort.Direction.ASC;
 import static org.springframework.data.domain.Sort.Direction.DESC;
@@ -34,7 +33,7 @@ public class ConfigurationsImpl implements Configurations {
     @Override
     public Flux<Configuration> findAllByType(String type) {
         return repository.findByType(type, Sort.by(new Order(DESC, "description.updatedAt")))
-                .filter(configurationDB -> configurationDB.getDescription().getStaticStatus() != StaticStatus.DELETED)
+                .filter(configurationDB -> configurationDB.getDescription().getStaticStatus() != ConfigurationDescription.StaticStatus.DELETED)
                 .map(ConfigurationDB::to);
     }
 
@@ -102,11 +101,11 @@ public class ConfigurationsImpl implements Configurations {
                 .transformDeferred(repository::saveAll).then();
     }
 
-    private Mono<Void> updateStatus(ConfigurationId id, StaticStatus staticStatus) {
+    private Mono<Void> updateStatus(ConfigurationId id, ConfigurationDescription.StaticStatus staticStatus) {
         return this.updateStatus(id, staticStatus, List.of());
     }
 
-    private Mono<Void> updateStatus(ConfigurationId id, StaticStatus staticStatus, List<StaticStatus> deniedStatus) {
+    private Mono<Void> updateStatus(ConfigurationId id, ConfigurationDescription.StaticStatus staticStatus, List<ConfigurationDescription.StaticStatus> deniedStatus) {
         return repository.findById(id.getId())
                 .switchIfEmpty(Mono.error(new ConfigurationNotFoundException(id.getId())))
                 .map(db -> {

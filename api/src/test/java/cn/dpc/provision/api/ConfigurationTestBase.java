@@ -2,9 +2,7 @@ package cn.dpc.provision.api;
 
 import cn.dpc.provision.api.dto.ConfigurationRequest;
 import cn.dpc.provision.domain.Configuration;
-import cn.dpc.provision.domain.DisplayRule;
-import cn.dpc.provision.domain.StaticStatus;
-import cn.dpc.provision.domain.TimeRange;
+import cn.dpc.provision.domain.ConfigurationDescription;
 import cn.dpc.provision.domain.condition.CustomerCriteriaCondition;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.SneakyThrows;
@@ -18,11 +16,11 @@ public class ConfigurationTestBase {
 
     @SneakyThrows
     protected ConfigurationRequest generateConfigurationRequest(String type) {
-        return generateConfigurationRequest(type, StaticStatus.DRAFT);
+        return generateConfigurationRequest(type, ConfigurationDescription.StaticStatus.DRAFT);
     }
 
     @SneakyThrows
-    public static ConfigurationRequest generateConfigurationRequest(String type, StaticStatus status) {
+    public static ConfigurationRequest generateConfigurationRequest(String type, ConfigurationDescription.StaticStatus status) {
         var request = new ConfigurationRequest();
         request.setType(type);
         request.setKey("TEST_KEY");
@@ -31,18 +29,18 @@ public class ConfigurationTestBase {
         request.setTitle("title");
         request.setDescription("description");
         request.setStaticStatus(status);
-        request.setDisplayRule(new DisplayRule());
-        request.setTimeRange(new TimeRange(LocalDateTime.now().minusHours(1), LocalDateTime.now().plusHours(1)));
+        request.setDisplayRule(new ConfigurationDescription.DisplayRule());
+        request.setTimeRange(new ConfigurationDescription.TimeRange(LocalDateTime.now().minusHours(1), LocalDateTime.now().plusHours(1)));
         request.setCustomerCriteriaCondition(new CustomerCriteriaCondition());
         return request;
     }
 
     @SneakyThrows
     public static Configuration generateConfiguration(String type) {
-        return generateConfiguration(type, StaticStatus.DRAFT);
+        return generateConfiguration(type, ConfigurationDescription.StaticStatus.DRAFT);
     }
 
-    public static Configuration generateConfiguration(String type, StaticStatus status) {
+    public static Configuration generateConfiguration(String type, ConfigurationDescription.StaticStatus status) {
         Configuration configuration = generateConfigurationRequest(type, status).toConfiguration();
         configuration.setId(new Configuration.ConfigurationId(UUID.randomUUID().toString()));
         return configuration;

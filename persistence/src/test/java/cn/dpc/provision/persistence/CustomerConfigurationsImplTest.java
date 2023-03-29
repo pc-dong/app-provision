@@ -33,9 +33,9 @@ class CustomerConfigurationsImplTest extends ConfigurationTestBase {
     @Test
     public void should_flux_success() {
         when(repository.findByType(eq("type"), any()))
-                .thenReturn(Flux.just(generateConfigurationDB(null, "key", StaticStatus.PUBLISHED, new TimeRange()),
-                        generateConfigurationDB(null, "key", StaticStatus.PUBLISHED, new TimeRange()),
-                        generateConfigurationDB(null, "key", StaticStatus.PUBLISHED, new TimeRange())));
+                .thenReturn(Flux.just(generateConfigurationDB(null, "key", ConfigurationDescription.StaticStatus.PUBLISHED, new ConfigurationDescription.TimeRange()),
+                        generateConfigurationDB(null, "key", ConfigurationDescription.StaticStatus.PUBLISHED, new ConfigurationDescription.TimeRange()),
+                        generateConfigurationDB(null, "key", ConfigurationDescription.StaticStatus.PUBLISHED, new ConfigurationDescription.TimeRange())));
 
         when(customerCriteriaResults.getResult(any(), any())).thenReturn(Mono.just(true));
 

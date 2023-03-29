@@ -1,14 +1,12 @@
 package cn.dpc.provision.persistence;
 
+import cn.dpc.provision.domain.AbstractCustomerConfigurations;
 import cn.dpc.provision.domain.Configuration;
-import cn.dpc.provision.domain.Customer;
-import cn.dpc.provision.domain.CustomerConfigurations;
 import cn.dpc.provision.domain.CustomerCriteriaResults;
 import cn.dpc.provision.persistence.repository.ConfigurationDB;
 import cn.dpc.provision.persistence.repository.ConfigurationDBRepository;
 import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;
-import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
@@ -17,10 +15,14 @@ import reactor.core.publisher.Mono;
 import java.time.Duration;
 
 @Service
-@RequiredArgsConstructor
-public class CustomerConfigurationsImpl implements CustomerConfigurations {
+public class CustomerConfigurationsImpl extends AbstractCustomerConfigurations {
     private final ConfigurationDBRepository repository;
-    private final CustomerCriteriaResults customerCriteriaResults;
+
+    public CustomerConfigurationsImpl(ConfigurationDBRepository repository,
+                                      CustomerCriteriaResults customerCriteriaResults) {
+        super(customerCriteriaResults);
+        this.repository = repository;
+    }
 
     static final Cache<String, Flux<ConfigurationDB>> configurationCache = Caffeine.newBuilder()
             .maximumSize(100)
@@ -28,10 +30,9 @@ public class CustomerConfigurationsImpl implements CustomerConfigurations {
             .build();
 
     @Override
-    public Flux<Configuration> flux(String type, Customer customer) {
+    protected Flux<Configuration> loadAllConfiguration(String type) {
         return loadConfigurationWithCache(type)
-                .map(ConfigurationDB::to)
-                .filterWhen(configuration -> customerCriteriaResults.getResult(configuration, customer));
+                .map(ConfigurationDB::to);
     }
 
     private Flux<ConfigurationDB> loadConfigurationWithCache(String type) {

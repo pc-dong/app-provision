@@ -2,7 +2,6 @@ package cn.dpc.provision.api;
 
 import cn.dpc.provision.api.config.annotation.GetMessageMapping;
 import cn.dpc.provision.api.dto.DiffRSocketRequest;
-import cn.dpc.provision.api.dto.DiffRequest;
 import cn.dpc.provision.api.dto.DiffResponse;
 import cn.dpc.provision.api.dto.RealTimeRequest;
 import cn.dpc.provision.domain.CustomerConfigurations;
@@ -13,19 +12,14 @@ import org.springframework.messaging.handler.annotation.DestinationVariable;
 import org.springframework.messaging.handler.annotation.Header;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.Payload;
-import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.util.Optional;
 
 import static cn.dpc.provision.api.config.ServerConfig.CUSTOMER;
-import static cn.dpc.provision.domain.DynamicStatus.IN_PROGRESS;
+import static cn.dpc.provision.domain.ConfigurationDescription.DynamicStatus.IN_PROGRESS;
 
 @Controller
 @RequiredArgsConstructor

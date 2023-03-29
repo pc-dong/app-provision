@@ -44,4 +44,5 @@ public class Configuration {
             return new ConfigurationId(id);
         }
     }
+
 }

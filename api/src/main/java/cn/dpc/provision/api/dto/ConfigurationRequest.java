@@ -5,7 +5,6 @@ import cn.dpc.provision.domain.condition.CustomerCriteriaCondition;
 import lombok.Data;
 
 import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotNull;
 
 @Data
 public class ConfigurationRequest {
@@ -17,9 +16,9 @@ public class ConfigurationRequest {
     private String key;
     private Object data;
     private Object trackingData;
-    private StaticStatus staticStatus;
-    private TimeRange timeRange;
-    private DisplayRule displayRule;
+    private ConfigurationDescription.StaticStatus staticStatus;
+    private ConfigurationDescription.TimeRange timeRange;
+    private ConfigurationDescription.DisplayRule displayRule;
     private long priority;
     private CustomerCriteriaCondition customerCriteriaCondition;
 

@@ -21,10 +21,10 @@ public class ConfigurationResponse {
     private String key;
     private Object data;
     private Object trackingData;
-    private StaticStatus staticStatus;
-    private DynamicStatus status;
-    private TimeRange timeRange;
-    private DisplayRule displayRule;
+    private ConfigurationDescription.StaticStatus staticStatus;
+    private ConfigurationDescription.DynamicStatus status;
+    private ConfigurationDescription.TimeRange timeRange;
+    private ConfigurationDescription.DisplayRule displayRule;
     private long priority;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;

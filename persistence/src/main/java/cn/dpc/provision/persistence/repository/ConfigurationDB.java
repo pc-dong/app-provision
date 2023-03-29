@@ -2,7 +2,6 @@ package cn.dpc.provision.persistence.repository;
 
 import cn.dpc.provision.domain.Configuration;
 import cn.dpc.provision.domain.ConfigurationDescription;
-import cn.dpc.provision.domain.StaticStatus;
 import cn.dpc.provision.domain.condition.CustomerCriteriaCondition;
 import lombok.Data;
 import org.springframework.beans.BeanUtils;
@@ -63,7 +62,7 @@ public class ConfigurationDB {
         return this;
     }
 
-    public ConfigurationDB updateStatus(StaticStatus staticStatus) {
+    public ConfigurationDB updateStatus(ConfigurationDescription.StaticStatus staticStatus) {
         this.getDescription().setStaticStatus(staticStatus);
         this.getDescription().setUpdatedAt(LocalDateTime.now());
         return this;

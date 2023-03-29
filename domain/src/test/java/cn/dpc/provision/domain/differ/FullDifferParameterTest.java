@@ -26,7 +26,7 @@ import static org.mockito.Mockito.when;
 
 public class FullDifferParameterTest extends ConfigurationTestBase {
 
-    public static final List<StaticStatus> ORIGINAL_STATUS = List.of(StaticStatus.values());
+    public static final List<ConfigurationDescription.StaticStatus> ORIGINAL_STATUS = List.of(ConfigurationDescription.StaticStatus.values());
 
     public static record DifferParamTestData(List<Configuration> configurations,
                                              String type,
@@ -87,7 +87,7 @@ public class FullDifferParameterTest extends ConfigurationTestBase {
 
         List<List<LocalDateTime>> updateTimes = getUpdateTimes(cnt);
 
-        List<List<StaticStatus>> statuses = getStatuses(cnt);
+        List<List<ConfigurationDescription.StaticStatus>> statuses = getStatuses(cnt);
 
         statuses.forEach(status -> {
             startTimes.forEach(startTime -> {
@@ -96,7 +96,7 @@ public class FullDifferParameterTest extends ConfigurationTestBase {
                     List<LocalDateTime> updateTimeList = new ArrayList<>();
                     List<Configuration> data = IntStream.range(0, cnt)
                             .mapToObj(index -> {
-                                if(status.get(index) == StaticStatus.PUBLISHED) {
+                                if(status.get(index) == ConfigurationDescription.StaticStatus.PUBLISHED) {
                                     if (null != startTime.get(index)) {
                                         startTimeList.add(startTime.get(index));
                                     }
@@ -104,12 +104,12 @@ public class FullDifferParameterTest extends ConfigurationTestBase {
                                     updateTimeList.add(updateTime.get(index));
                                 }
                                 CustomerCriteriaCondition condition = CustomerCriteriaCondition.builder().build();
-                                return generateConfiguration("id" + index, "key1", new HashMap<>(), status.get(index), new TimeRange(startTime.get(index), null), condition, "type", updateTime.get(index));
+                                return generateConfiguration("id" + index, "key1", new HashMap<>(), status.get(index), new ConfigurationDescription.TimeRange(startTime.get(index), null), condition, "type", updateTime.get(index));
                             }).collect(Collectors.toList());
 
                     data.addAll(IntStream.range(0, cnt)
                             .mapToObj(index -> {
-                                if(status.get(index) == StaticStatus.PUBLISHED) {
+                                if(status.get(index) == ConfigurationDescription.StaticStatus.PUBLISHED) {
                                     if (null != startTime.get(index)) {
                                         startTimeList.add(startTime.get(index));
                                     }
@@ -117,7 +117,7 @@ public class FullDifferParameterTest extends ConfigurationTestBase {
                                     updateTimeList.add(updateTime.get(index));
                                 }
                                 CustomerCriteriaCondition condition = CustomerCriteriaCondition.builder().build();
-                                return generateConfiguration("idd" + index, "key2", new HashMap<>(), status.get(index), new TimeRange(startTime.get(index), null), condition, "type", updateTime.get(index));
+                                return generateConfiguration("idd" + index, "key2", new HashMap<>(), status.get(index), new ConfigurationDescription.TimeRange(startTime.get(index), null), condition, "type", updateTime.get(index));
                             }).collect(Collectors.toList()));
 
 
@@ -128,7 +128,7 @@ public class FullDifferParameterTest extends ConfigurationTestBase {
                             .collect(Collectors.groupingBy(configuration -> configuration.getDescription().getKey()))
                             .entrySet().stream().map(entry -> new DifferResult.DifferContent(entry.getKey(), 0, null,
                                     entry.getValue().stream()
-                                            .filter(configuration -> configuration.getDescription().getStatus() == DynamicStatus.IN_PROGRESS)
+                                            .filter(configuration -> configuration.getDescription().getStatus() == ConfigurationDescription.DynamicStatus.IN_PROGRESS)
                                             .map(DifferResult.DifferItem::from)
                                             .collect(Collectors.toList())))
                             .filter(item -> !CollectionUtils.isEmpty(item.items()))
@@ -142,11 +142,11 @@ public class FullDifferParameterTest extends ConfigurationTestBase {
         return result;
     }
 
-    private static List<List<StaticStatus>> getStatuses(int cnt) {
-        List<StaticStatus> list = new ArrayList<>();
-        List<List<StaticStatus>> result = new ArrayList<>();
+    private static List<List<ConfigurationDescription.StaticStatus>> getStatuses(int cnt) {
+        List<ConfigurationDescription.StaticStatus> list = new ArrayList<>();
+        List<List<ConfigurationDescription.StaticStatus>> result = new ArrayList<>();
         for (int i = 0; i < Math.pow(4, cnt); i++) {
-            ArrayList<StaticStatus> init = new ArrayList<>();
+            ArrayList<ConfigurationDescription.StaticStatus> init = new ArrayList<>();
             for (int j = 0; j < cnt; j++) {
                 init.add(null);
             }

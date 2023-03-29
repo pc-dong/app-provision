@@ -10,8 +10,8 @@ spring:
 
   couchbase:
     connection-string: couchbase://127.0.0.1
-    username: user
-    password: password
+    username: bucket1
+    password: bucket1pass
 
 logging:
   level:

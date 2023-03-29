@@ -2,10 +2,8 @@ package cn.dpc.provision.persistence;
 
 import cn.dpc.provision.TestConfiguration;
 import cn.dpc.provision.domain.*;
-import cn.dpc.provision.domain.condition.CustomerCriteriaCondition;
 import cn.dpc.provision.domain.exception.ConfigurationNotFoundException;
 import cn.dpc.provision.domain.exception.StatusNotMatchException;
-import cn.dpc.provision.persistence.repository.ConfigurationDB;
 import cn.dpc.provision.persistence.repository.ConfigurationDBRepository;
 import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,7 +16,6 @@ import reactor.test.StepVerifier;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -52,7 +49,7 @@ class ConfigurationsImplTest extends ConfigurationTestBase{
                 .expectNextMatches(configuration -> configuration.getId() != null
                         && configuration.getId().getId().length() > 0
                         && configuration.getDescription().getUpdatedAt() != null
-                        && configuration.getDescription().getStaticStatus() == StaticStatus.DRAFT)
+                        && configuration.getDescription().getStaticStatus() == ConfigurationDescription.StaticStatus.DRAFT)
                 .verifyComplete();
     }
 
@@ -104,7 +101,7 @@ class ConfigurationsImplTest extends ConfigurationTestBase{
 
     @Test
     public void should_publish_throw_error_when_status_is_disabled() {
-        Configuration configuration = configurations.add(generateConfiguration(null, "key1", StaticStatus.DISABLED))
+        Configuration configuration = configurations.add(generateConfiguration(null, "key1", ConfigurationDescription.StaticStatus.DISABLED))
                 .block();
 
         configurations.publish(configuration.getId())
@@ -115,7 +112,7 @@ class ConfigurationsImplTest extends ConfigurationTestBase{
 
     @Test
     public void should_publish_throw_error_when_status_is_deleted() {
-        Configuration configuration = configurations.add(generateConfiguration(null, "key1", StaticStatus.DELETED))
+        Configuration configuration = configurations.add(generateConfiguration(null, "key1", ConfigurationDescription.StaticStatus.DELETED))
                 .block();
 
         configurations.publish(configuration.getId())
@@ -134,7 +131,7 @@ class ConfigurationsImplTest extends ConfigurationTestBase{
                 .verifyComplete();
 
         Configuration configuration1 = configurations.getById(configuration.getId()).block();
-        assertEquals(configuration1.getDescription().getStaticStatus(), StaticStatus.PUBLISHED);
+        assertEquals(configuration1.getDescription().getStaticStatus(), ConfigurationDescription.StaticStatus.PUBLISHED);
     }
 
     @Test
@@ -155,7 +152,7 @@ class ConfigurationsImplTest extends ConfigurationTestBase{
                 .verifyComplete();
 
         Configuration configuration1 = configurations.getById(configuration.getId()).block();
-        assertEquals(configuration1.getDescription().getStaticStatus(), StaticStatus.DISABLED);
+        assertEquals(configuration1.getDescription().getStaticStatus(), ConfigurationDescription.StaticStatus.DISABLED);
     }
 
     @Test
@@ -183,13 +180,13 @@ class ConfigurationsImplTest extends ConfigurationTestBase{
 
     @Test
     public void should_find_by_type_success() {
-        configurations.add(generateConfiguration(null, "key1", StaticStatus.DRAFT))
+        configurations.add(generateConfiguration(null, "key1", ConfigurationDescription.StaticStatus.DRAFT))
                 .block();
-        configurations.add(generateConfiguration(null, "key1", StaticStatus.PUBLISHED))
+        configurations.add(generateConfiguration(null, "key1", ConfigurationDescription.StaticStatus.PUBLISHED))
                 .block();
-        configurations.add(generateConfiguration(null, "key1", StaticStatus.DISABLED))
+        configurations.add(generateConfiguration(null, "key1", ConfigurationDescription.StaticStatus.DISABLED))
                 .block();
-        configurations.add(generateConfiguration(null, "key1", StaticStatus.DELETED))
+        configurations.add(generateConfiguration(null, "key1", ConfigurationDescription.StaticStatus.DELETED))
                 .block();
         Mono.delay(Duration.ofMillis(1000)).block();
 
@@ -201,24 +198,24 @@ class ConfigurationsImplTest extends ConfigurationTestBase{
 
     @Test
     public void should_find_available_success() {
-        Configuration configuration1 = configurations.add(generateConfiguration(null, "key1", StaticStatus.DRAFT,
-                        new TimeRange(null, LocalDateTime.now().plusHours(1))))
+        Configuration configuration1 = configurations.add(generateConfiguration(null, "key1", ConfigurationDescription.StaticStatus.DRAFT,
+                        new ConfigurationDescription.TimeRange(null, LocalDateTime.now().plusHours(1))))
                 .block();
 
-        configurations.add(generateConfiguration(null, "key1", StaticStatus.DRAFT, new TimeRange(null, LocalDateTime.now().minusHours(1))))
+        configurations.add(generateConfiguration(null, "key1", ConfigurationDescription.StaticStatus.DRAFT, new ConfigurationDescription.TimeRange(null, LocalDateTime.now().minusHours(1))))
                 .block();
 
-        Configuration configuration2 = configurations.add(generateConfiguration(null, "key1", StaticStatus.PUBLISHED,
-                        new TimeRange(null, LocalDateTime.now().plusHours(1))))
+        Configuration configuration2 = configurations.add(generateConfiguration(null, "key1", ConfigurationDescription.StaticStatus.PUBLISHED,
+                        new ConfigurationDescription.TimeRange(null, LocalDateTime.now().plusHours(1))))
                 .block();
 
-        configurations.add(generateConfiguration(null, "key1", StaticStatus.PUBLISHED,
-                        new TimeRange(null, LocalDateTime.now().minusHours(1))))
+        configurations.add(generateConfiguration(null, "key1", ConfigurationDescription.StaticStatus.PUBLISHED,
+                        new ConfigurationDescription.TimeRange(null, LocalDateTime.now().minusHours(1))))
                 .block();
 
-        configurations.add(generateConfiguration(null, "key1", StaticStatus.DISABLED))
+        configurations.add(generateConfiguration(null, "key1", ConfigurationDescription.StaticStatus.DISABLED))
                 .block();
-        configurations.add(generateConfiguration(null, "key1", StaticStatus.DELETED))
+        configurations.add(generateConfiguration(null, "key1", ConfigurationDescription.StaticStatus.DELETED))
                 .block();
         Mono.delay(Duration.ofMillis(1000)).block();
 
@@ -236,16 +233,16 @@ class ConfigurationsImplTest extends ConfigurationTestBase{
     @Test
     public void should_priority_success() {
 
-        Configuration configuration1 = configurations.add(generateConfiguration(null, "key1", StaticStatus.PUBLISHED,
-                        new TimeRange(null, LocalDateTime.now().plusHours(1))))
+        Configuration configuration1 = configurations.add(generateConfiguration(null, "key1", ConfigurationDescription.StaticStatus.PUBLISHED,
+                        new ConfigurationDescription.TimeRange(null, LocalDateTime.now().plusHours(1))))
                 .block();
 
-        Configuration configuration2 = configurations.add(generateConfiguration(null, "key1", StaticStatus.PUBLISHED,
-                        new TimeRange(null, LocalDateTime.now().plusHours(1))))
+        Configuration configuration2 = configurations.add(generateConfiguration(null, "key1", ConfigurationDescription.StaticStatus.PUBLISHED,
+                        new ConfigurationDescription.TimeRange(null, LocalDateTime.now().plusHours(1))))
                 .block();
 
-        Configuration configuration3 = configurations.add(generateConfiguration(null, "key1", StaticStatus.PUBLISHED,
-                        new TimeRange(null, LocalDateTime.now().plusHours(1))))
+        Configuration configuration3 = configurations.add(generateConfiguration(null, "key1", ConfigurationDescription.StaticStatus.PUBLISHED,
+                        new ConfigurationDescription.TimeRange(null, LocalDateTime.now().plusHours(1))))
                 .block();
 
         List<Configuration.ConfigurationId> ids = List.of(configuration2.getId(), configuration3.getId(), configuration1.getId());

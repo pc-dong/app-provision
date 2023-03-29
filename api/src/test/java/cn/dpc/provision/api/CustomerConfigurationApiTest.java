@@ -8,7 +8,6 @@ import cn.dpc.provision.domain.differ.DifferFactory;
 import cn.dpc.provision.domain.differ.DifferResult;
 import cn.dpc.provision.domain.differ.DifferResult.DifferContent;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.assertj.core.internal.Lists;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mockito;
@@ -23,7 +22,7 @@ import reactor.core.publisher.Mono;
 
 import java.util.List;
 
-import static cn.dpc.provision.domain.StaticStatus.*;
+import static cn.dpc.provision.domain.ConfigurationDescription.StaticStatus.*;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;

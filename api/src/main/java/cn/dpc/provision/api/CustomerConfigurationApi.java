@@ -7,7 +7,6 @@ import cn.dpc.provision.domain.CustomerConfigurations;
 import cn.dpc.provision.domain.differ.DifferFactory;
 import cn.dpc.provision.domain.differ.DifferResult.DifferContent;
 import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Component;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -17,7 +16,7 @@ import reactor.core.publisher.Mono;
 
 import java.util.Optional;
 
-import static cn.dpc.provision.domain.DynamicStatus.IN_PROGRESS;
+import static cn.dpc.provision.domain.ConfigurationDescription.DynamicStatus.IN_PROGRESS;
 
 @RestController
 @RequiredArgsConstructor

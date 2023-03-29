@@ -1,8 +1,7 @@
 package cn.dpc.provision.domain.differ;
 
 import cn.dpc.provision.domain.Configuration;
-import cn.dpc.provision.domain.DisplayRule;
-import cn.dpc.provision.domain.TimeRange;
+import cn.dpc.provision.domain.ConfigurationDescription;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -42,7 +41,7 @@ public class DifferResult {
                              String key,
                              Object data,
                              Object trackingData,
-                             DisplayRule displayRule,
+                             ConfigurationDescription.DisplayRule displayRule,
                              LocalDateTime updatedAt,
                              LocalDateTime expiredAt,
                              long priority) {
@@ -53,7 +52,7 @@ public class DifferResult {
                     configuration.getDescription().getTrackingData(),
                     configuration.getDescription().getDisplayRule(),
                     configuration.getDescription().getUpdatedAt(),
-                    Optional.ofNullable(configuration.getDescription().getTimeRange()).map(TimeRange::getEndDate)
+                    Optional.ofNullable(configuration.getDescription().getTimeRange()).map(ConfigurationDescription.TimeRange::getEndDate)
                             .orElse(null),
                     configuration.getDescription().getPriority());
         }

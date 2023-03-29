@@ -3,7 +3,7 @@ package cn.dpc.provision.domain;
 import lombok.*;
 
 import java.time.LocalDateTime;
-import java.util.Comparator;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -64,6 +64,10 @@ public class ConfigurationDescription {
                 && (this.staticStatus == StaticStatus.DRAFT || this.staticStatus == StaticStatus.PUBLISHED);
     }
 
+    public enum StaticStatus {
+        DRAFT, PUBLISHED, DISABLED, DELETED;
+    }
+
     public static class ConfigurationDescriptionInternalBuilder extends ConfigurationDescriptionBuilder {
 
         ConfigurationDescriptionInternalBuilder() {
@@ -86,5 +90,39 @@ public class ConfigurationDescription {
         if (null == staticStatus) {
             staticStatus = StaticStatus.DRAFT;
         }
+    }
+
+    public enum DynamicStatus {
+        DRAFT, NOT_BEGIN, IN_PROGRESS, EXPIRED, DISABLED, DELETED;
+    }
+
+    @Data
+    @AllArgsConstructor
+    @NoArgsConstructor
+    public static class DisplayRule {
+        private DisplayRuleType type;
+        private int times;
+        private List<DailyCondition> dailyConditions;
+
+        public static enum DisplayRuleType {
+            EVERYTIME,
+            FIX_TIMES,
+            DAY_FIX_TIMES;
+        }
+
+        @Data
+        public static class DailyCondition {
+            private int dayOfWeek;
+            private String start;
+            private String end;
+        }
+    }
+
+    @Data
+    @AllArgsConstructor
+    @NoArgsConstructor
+    public static class TimeRange {
+        LocalDateTime startDate;
+        LocalDateTime endDate;
     }
 }
