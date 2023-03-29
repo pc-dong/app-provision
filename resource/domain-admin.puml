@@ -100,7 +100,7 @@ CustomerCriteriaCondition *- WhiteListCondition
 CustomerCriteriaCondition *- LocationCondition
 CustomerCriteriaCondition *- ABTestingCondition
 
-Configurations "*" -- "1" Configuration
+Configurations "1" -- "*" Configuration
 Configuration *- ConfigurationDescription
 Configuration "1" -- "1" CustomerCriteriaCondition
 
