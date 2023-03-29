@@ -1,8 +1,5 @@
 package cn.dpc.provision.persistence.repository.config;
 
-import com.couchbase.client.java.env.ClusterEnvironment;
-import com.couchbase.client.java.transactions.config.TransactionOptions;
-import com.couchbase.client.java.transactions.config.TransactionsConfig;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.autoconfigure.couchbase.CouchbaseProperties;
@@ -14,11 +11,6 @@ import org.springframework.data.couchbase.core.convert.CouchbaseCustomConversion
 import org.springframework.data.couchbase.core.convert.MappingCouchbaseConverter;
 import org.springframework.data.couchbase.core.mapping.CouchbaseMappingContext;
 import org.springframework.data.couchbase.repository.config.EnableReactiveCouchbaseRepositories;
-import org.springframework.transaction.ReactiveTransactionManager;
-import org.springframework.transaction.annotation.EnableTransactionManagement;
-import org.springframework.transaction.reactive.TransactionalOperator;
-
-import java.time.Duration;
 
 @Configuration
 @Slf4j

@@ -1,14 +1,17 @@
 package cn.dpc.provision.persistence;
 
 import cn.dpc.provision.TestConfiguration;
-import cn.dpc.provision.domain.*;
+import cn.dpc.provision.domain.Configuration;
+import cn.dpc.provision.domain.ConfigurationDescription;
+import cn.dpc.provision.domain.Configurations;
 import cn.dpc.provision.domain.exception.ConfigurationNotFoundException;
 import cn.dpc.provision.domain.exception.StatusNotMatchException;
 import cn.dpc.provision.persistence.repository.ConfigurationDBRepository;
-import org.junit.jupiter.api.*;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.data.couchbase.core.CouchbaseTemplate;
 import org.springframework.test.context.ActiveProfiles;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
@@ -24,9 +27,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 class ConfigurationsImplTest extends ConfigurationTestBase{
     @Autowired
     ConfigurationDBRepository repository;
-
-    @Autowired
-    CouchbaseTemplate couchbaseTemplate;
 
     @Autowired
     Configurations configurations;
