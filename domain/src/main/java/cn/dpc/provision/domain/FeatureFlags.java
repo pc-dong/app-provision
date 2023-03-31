@@ -7,6 +7,10 @@ import reactor.core.publisher.Mono;
 public interface FeatureFlags {
     Flux<FeatureFlag> findAll();
 
+    Flux<FeatureFlag> listByPage(int page, int pageSize);
+
+    Mono<Long> countAll();
+
     Mono<FeatureFlag> getByFeatureKey(String featureKey);
 
     Mono<FeatureFlag> add(FeatureFlag featureFlag);

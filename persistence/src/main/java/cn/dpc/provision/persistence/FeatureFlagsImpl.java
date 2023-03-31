@@ -6,6 +6,7 @@ import cn.dpc.provision.domain.FeatureFlags;
 import cn.dpc.provision.domain.exception.ConfigurationNotFoundException;
 import cn.dpc.provision.persistence.repository.FeatureFlagDB;
 import cn.dpc.provision.persistence.repository.FeatureFlagDBRepository;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -26,6 +27,18 @@ public class FeatureFlagsImpl implements FeatureFlags {
         return featureFlagDBRepository.findAll()
                 .map(FeatureFlagDB::to)
                 .filter(featureFlag -> featureFlag.getDescription().status() != DELETED);
+    }
+
+    @Override
+    public Flux<FeatureFlag> listByPage(int page, int pageSize) {
+        Pageable withPage = Pageable.ofSize(pageSize).withPage(page);
+        return featureFlagDBRepository.findAllWithPage(withPage.getOffset(), withPage.getPageSize())
+                .map(FeatureFlagDB::to);
+    }
+
+    @Override
+    public Mono<Long> countAll() {
+        return featureFlagDBRepository.count();
     }
 
     @Override

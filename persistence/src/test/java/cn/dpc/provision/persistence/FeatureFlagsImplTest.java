@@ -232,6 +232,20 @@ class FeatureFlagsImplTest {
                 .verifyComplete();
     }
 
+    @Test
+    public void should_listAllByPage_success() {
+        featureFlags.add(getFeatureFlag("111")).block();
+        Mono.delay(Duration.ofMillis(200)).block();
+
+        featureFlags.add(getFeatureFlag("222")).block();
+        Mono.delay(Duration.ofMillis(200)).block();
+
+        featureFlags.listByPage(0, 1)
+                .as(StepVerifier::create)
+                .expectNextCount(1)
+                .verifyComplete();
+    }
+
     private static FeatureFlag getFeatureFlag(String featureKey) {
         FeatureFlag featureFlag = new FeatureFlag(featureKey, new FeatureFlag.FeatureFlagDescription("feature Name",
                 "description",

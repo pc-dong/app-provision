@@ -1,8 +1,10 @@
 package cn.dpc.provision.persistence.repository;
 
-import org.springframework.data.couchbase.core.query.N1qlPrimaryIndexed;
-import org.springframework.data.repository.reactive.ReactiveCrudRepository;
+import org.springframework.data.couchbase.repository.Query;
+import org.springframework.data.repository.reactive.ReactiveSortingRepository;
+import reactor.core.publisher.Flux;
 
-@N1qlPrimaryIndexed
-public interface FeatureFlagDBRepository extends ReactiveCrudRepository<FeatureFlagDB, String> {
+public interface FeatureFlagDBRepository extends ReactiveSortingRepository<FeatureFlagDB, String> {
+    @Query("#{#n1ql.selectEntity} WHERE #{#n1ql.filter} AND description.status != 'DELETED' offset $1 limit $2 ")
+    Flux<FeatureFlagDB> findAllWithPage(long offset, int limit);
 }
