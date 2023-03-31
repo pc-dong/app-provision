@@ -1,5 +1,5 @@
 server:
-  port: 8080
+  port: 8088
 
 spring:
   main:
@@ -13,8 +13,8 @@ spring:
 
   couchbase:
     connection-string: couchbase://127.0.0.1
-    username: user
-    password: password
+    username: bucket1
+    password: bucket1pass
   rsocket:
     server:
       port: 7001
