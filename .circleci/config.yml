@@ -34,13 +34,24 @@ jobs:
             - v1-dependencies-{{ checksum "build.gradle" }}
             # fallback to using the latest cache if no exact match is found
             - v1-dependencies-
-
+      
       - run: gradle dependencies
 
       - save_cache:
           paths:
             - ~/.gradle
           key: v1-dependencies-{{ checksum "build.gradle" }}
-
+      - run:
+          name: Start DB
+          command: |
+            sudo apt-get update
+            sudo apt-get install -y docker-compose
+            docker-compose up -d
       # run tests!
-      - run: gradle test
+      - run: 
+          name: run tests
+          command: gradle test
+          
+      - run:
+          name: Stop PostgreSQL
+          command: docker-compose down
