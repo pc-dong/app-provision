@@ -1,7 +1,5 @@
 <template>
-  <div ref="tableWrapper">
-
-  </div>
+  <div ref="tableWrapper" />
 </template>
 
 <script lang="tsx">
