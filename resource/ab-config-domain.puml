@@ -1,0 +1,194 @@
+@startuml
+'https://plantuml.com/class-diagram
+
+left to right direction
+package "Feature Flag" {
+    entity FeatureFlag #pink{
+        id: FeatureFlagId
+        featureKey: String
+        description: FeatureFlagDescription
+        featureConfigs: FeatureConfigs
+    }
+
+    entity FeatureConfig #pink{
+            id: FeatureConfigId
+            featureKey: String
+            data: Object
+            trackData: Object
+            condition: FilterCondition
+            description: FeatureConfigDescription
+            status: FeatureConfigStatus
+    }
+
+    interface FeatureFlags #Orange {
+        getFeatureFlag(featureKey: String): FeatureFlag
+    }
+
+    interface FeatureConfigs #Orange {
+        getFeatureConfigs(featureKey: String): List<FeatureConfig>
+    }
+
+    interface CustomerFeatureConfigs #Orange {
+        getFeatureConfigs(featureKey: String, customer: Customer): List<FeatureConfig>
+    }
+
+    FeatureFlags "1" -- "0..N" FeatureFlag
+    FeatureFlag "1" -- "1" FeatureConfigs
+    FeatureConfigs "1" -- "0..N" FeatureConfig
+    CustomerFeatureConfigs "1" -- "0..N" FeatureConfig
+}
+
+
+package "Experiment" as ExperimentPackage{
+    entity ExperimentGroup #pink {
+        id: ExperimentGroupId
+        description: ExperimentGroupDescription
+    }
+
+
+    entity Experiment #pink {
+        id: ExperimentId
+        groupId: ExperimentGroupId
+        description: ExperimentDescription
+        condition: FilterCondition
+        percentage: Percentage
+    }
+
+    entity Bucket #pink {
+            key: String
+            config: Object
+            percentage: Percentage
+    }
+
+    entity Assignment #pink {
+        id: AssignmentId
+        experimentId: ExperimentId
+        bucketKey: String
+        clientId: String
+        customerId: String
+        description: AssignmentDescription
+    }
+
+    interface ExperimentGroups #Orange {
+        getExperimentGroup(groupId: ExperimentGroupId): ExperimentGroup
+    }
+
+    interface ExperimentGroupExperiments #Orange {
+      getExperiments(groupId: ExperimentGroupId): List<Experiment>
+    }
+
+    interface Experiments #Orange {
+        getExperiment(experimentId: ExperimentId): Experiment
+    }
+
+    interface CustomerAssignments #Orange {
+        getAssignments(experimentId: ExperimentId, customer: Customer): Assignment
+    }
+
+    interface ExperimentAssignments #Orange {
+        getAssignments(experimentId: ExperimentId): List<Assignment>
+        getAssignments(experimentId: ExperimentId, bucketKey: String): List<Assignment>
+    }
+
+
+    ExperimentGroups "1" -- "0..N" ExperimentGroup
+    ExperimentGroup "1" -- "1" ExperimentGroupExperiments
+    ExperimentGroupExperiments "1" -- "0..N" Experiment
+    Experiments "1" -- "0..N" Experiment
+    Experiment "1" -- "1..N" Bucket
+    ExperimentAssignments "1" -- "1" Experiment
+    ExperimentAssignments "1" -- "0..N" Assignment
+    CustomerAssignments "1" -- "0..N" Assignment
+}
+
+
+
+package "Tracking" {
+    entity TrackingEvent #pink {
+        id: TrackingEventId
+        clientId: String
+        experimentId: ExperimentId
+        bucketKey: String
+        name: TrackingEventName
+        description: TrackingEventDescription
+    }
+
+    interface TrackingEvents #Orange {
+        getTrackingEvents(experimentId: ExperimentId, bucketKey: String): List<TrackingEvent>
+    }
+
+    TrackingEvents "1" -- "0..N" TrackingEvent
+    TrackingEvent "1..N" .. "1" Experiment
+    TrackingEvent "1..N" .. "1" Bucket
+}
+
+package "metrics" {
+    entity MetricMeta #pink {
+        id: MetricMetaId
+        name: MetricMeta
+        description: MetricDescription
+    }
+
+    entity Metric #pink {
+        id: MetricId
+        name: MetricName
+        description: MetricDescription
+    }
+
+    interface Metrics #Orange {
+        getMetrics(metricMetaId: MetricMetaId): List<Metric>
+    }
+
+    interface MetricMetas #Orange {
+        getMetricMetas(): List<MetricMeta>
+    }
+
+    interface MetricMetaMetrics #Orange {
+        getMetrics(metricMetaId: MetricMetaId): List<Metric>
+    }
+    MetricMetas "1" -- "0..N" MetricMeta
+    MetricMeta "1" -- "1" MetricMetaMetrics
+    MetricMetaMetrics "1" -- "0..N" Metric
+    Metrics "1" -- "0..N" Metric
+
+}
+
+package MemberCriteria {
+    entity Segment #pink {
+        id: SegmentId
+        name: String
+        description: SegmentDescription
+    }
+
+    interface Segments #Orange {
+        getSegments(): List<Segment>
+    }
+
+    interface CustomerSegments #Orange {
+        getSegments(customer: Customer): List<Segment>
+    }
+
+    Segments "1" -- "0..N" Segment
+    CustomerSegments "1" -- "0..N" Segment
+}
+
+entity Customer #Green {
+    id: CustomerId
+    clientId: String
+    description: CustomerDescription
+}
+
+
+
+Customer -- CustomerFeatureConfigs
+Customer -- CustomerAssignments
+CustomerAssignments -- CustomerSegments
+CustomerFeatureConfigs -- CustomerSegments
+
+Experiment "1" -- "0..N" MetricMeta
+Experiment "1" -- "0..N" Metric
+CustomerFeatureConfigs "1" -- "1" CustomerAssignments
+Experiment "1" -- "0..N" Segment
+FeatureConfig "1" -- "0..N" Segment
+"metrics" .. "Tracking"
+@enduml
