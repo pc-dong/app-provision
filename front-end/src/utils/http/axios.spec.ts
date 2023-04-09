@@ -1,5 +1,3 @@
-import DoneCallback = jest.DoneCallback;
-
 process.env.BASE_URL = 'http://localhost:3001/api';
 const errorMessages = [] as string[]
 jest.mock('element-plus', () => ({
