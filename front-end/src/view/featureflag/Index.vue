@@ -16,9 +16,9 @@
         <el-table-column prop="description.status" label="状态" width="180"/>
         <el-table-column label="操作">
           <template #default="scope">
-            <el-button type="danger" size="small" @click="deleteData(scope.row.featureKey)">删除</el-button>
             <el-button v-if="scope.row.description.status != 'PUBLISHED'" type="warning" size="small" @click="publish(scope.row.featureKey)">发布</el-button>
             <el-button v-if="scope.row.description.status == 'PUBLISHED'" type="warning" size="small" @click="disable(scope.row.featureKey)">撤销</el-button>
+            <el-button type="danger" size="small" @click="deleteData(scope.row.featureKey)">删除</el-button>
 
             <el-button size="small"
                        @click="() => router.push({ path: '/feature-flag/edit', query: { featureKey: scope.row.featureKey,type: 'edit' } })">

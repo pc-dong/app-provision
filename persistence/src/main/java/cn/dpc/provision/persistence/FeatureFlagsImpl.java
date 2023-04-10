@@ -30,15 +30,15 @@ public class FeatureFlagsImpl implements FeatureFlags {
     }
 
     @Override
-    public Flux<FeatureFlag> listByPage(int page, int pageSize) {
+    public Flux<FeatureFlag> listByPage(int page, int pageSize, String featureKey) {
         Pageable withPage = Pageable.ofSize(pageSize).withPage(page);
-        return featureFlagDBRepository.findAllWithPage(withPage.getOffset(), withPage.getPageSize())
+        return featureFlagDBRepository.findAllWithPage(withPage.getOffset(), withPage.getPageSize(), featureKey)
                 .map(FeatureFlagDB::to);
     }
 
     @Override
-    public Mono<Long> countAll() {
-        return featureFlagDBRepository.countNotDeleted();
+    public Mono<Long> countAll(String featureKey) {
+        return featureFlagDBRepository.countNotDeleted(featureKey);
     }
 
     @Override

@@ -25,9 +25,10 @@ public class FeatureFlagApi {
 
     @GetMapping("page")
     public Mono<PageResponse<FeatureFlagResponse>> listAll(@RequestParam(required = false, defaultValue = "0") int page,
-                                                           @RequestParam(required = false, defaultValue = "10") int pageSize){
-        return featureFlags.listByPage(page, pageSize)
-                .collectList().zipWith(featureFlags.countAll())
+                                                           @RequestParam(required = false, defaultValue = "10") int pageSize,
+                                                           @RequestParam(required = false, defaultValue = "") String featureKey) {
+        return featureFlags.listByPage(page, pageSize, featureKey)
+                .collectList().zipWith(featureFlags.countAll(featureKey))
                 .map(tuple -> PageResponse.<FeatureFlagResponse>builder()
                         .content(tuple.getT1().stream().map(FeatureFlagResponse::fromFeatureFlag).collect(Collectors.toList()))
                         .total(tuple.getT2())

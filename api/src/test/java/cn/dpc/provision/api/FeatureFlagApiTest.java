@@ -22,8 +22,7 @@ import static cn.dpc.provision.domain.FeatureFlag.FeatureFlagDescription.DataTyp
 import static cn.dpc.provision.domain.FeatureFlag.FeatureFlagDescription.Status.PUBLISHED;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(SpringExtension.class)
@@ -103,8 +102,8 @@ class FeatureFlagApiTest {
     public void should_list_all_with_page_return_by_page_feature_flags() {
         String featureKey = "featureKey";
         FeatureFlag featureFlag = generateFeatureFlag(featureKey);
-        when(featureFlags.listByPage(anyInt(), anyInt())).thenReturn(Flux.just(featureFlag));
-        when(featureFlags.countAll()).thenReturn(Mono.just(2L));
+        when(featureFlags.listByPage(anyInt(), anyInt(), anyString())).thenReturn(Flux.just(featureFlag));
+        when(featureFlags.countAll(anyString())).thenReturn(Mono.just(2L));
 
         webClient.get()
                 .uri("/feature-flags/page?page=0&pageSize=1")

@@ -6,10 +6,8 @@ import cn.dpc.provision.domain.FeatureFlags;
 import cn.dpc.provision.domain.exception.ConfigurationNotFoundException;
 import cn.dpc.provision.persistence.repository.FeatureFlagDBRepository;
 import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.dao.DuplicateKeyException;
@@ -22,7 +20,6 @@ import java.util.LinkedHashMap;
 import java.util.List;
 
 import static cn.dpc.provision.domain.FeatureFlag.FeatureFlagDescription.Status.*;
-import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.NONE, classes = TestConfiguration.class)
 @ActiveProfiles("test")
@@ -240,14 +237,28 @@ class FeatureFlagsImplTest {
         featureFlags.add(getFeatureFlag("222")).block();
         Mono.delay(Duration.ofMillis(200)).block();
 
-        featureFlags.listByPage(0, 1)
+        featureFlags.listByPage(0, 1, "")
+                .as(StepVerifier::create)
+                .expectNextCount(1)
+                .verifyComplete();
+    }
+
+    @Test
+    public void should_listAllByPage_with_featureKey_success() {
+        featureFlags.add(getFeatureFlag("111")).block();
+        Mono.delay(Duration.ofMillis(200)).block();
+
+        featureFlags.add(getFeatureFlag("222")).block();
+        Mono.delay(Duration.ofMillis(200)).block();
+
+        featureFlags.listByPage(0, 2, "11")
                 .as(StepVerifier::create)
                 .expectNextCount(1)
                 .verifyComplete();
     }
 
     private static FeatureFlag getFeatureFlag(String featureKey) {
-        FeatureFlag featureFlag = new FeatureFlag(featureKey, new FeatureFlag.FeatureFlagDescription("feature Name",
+        return new FeatureFlag(featureKey, new FeatureFlag.FeatureFlagDescription("feature Name",
                 "description",
                 FeatureFlag.FeatureFlagDescription.DataType.JSON,
                 new LinkedHashMap<>(),
@@ -255,6 +266,5 @@ class FeatureFlagsImplTest {
                 new FeatureFlag.FeatureConfigTemplate(List.of(
                         new FeatureFlag.FeatureConfigTemplate.Item("key", "name", "description", FeatureFlag.FeatureConfigTemplate.DataType.STRING,
                                 "defaultValue", null)))));
-        return featureFlag;
     }
 }
