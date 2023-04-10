@@ -42,6 +42,12 @@ public class FeatureFlagApi {
                 .map(FeatureFlagResponse::fromFeatureFlag);
     }
 
+    @GetMapping("{featureKey}")
+    public Mono<FeatureFlagResponse> getByFeatureKey(@PathVariable String featureKey) {
+        return featureFlags.getByFeatureKey(featureKey)
+                .map(FeatureFlagResponse::fromFeatureFlag);
+    }
+
     @PutMapping("{featureKey}")
     public Mono<FeatureFlagResponse> updateRecord(@PathVariable String featureKey,
                                                   @RequestBody FeatureFlag.FeatureFlagDescription description) {

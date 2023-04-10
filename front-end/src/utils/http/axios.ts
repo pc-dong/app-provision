@@ -1,7 +1,8 @@
 import axios, {AxiosInstance} from "axios";
 import {ElMessage} from "element-plus";
 
-const instance:AxiosInstance = axios.create({baseURL: `${process.env.BASE_URL || '/api'}`, timeout: 30000});
+const instance: AxiosInstance = axios.create({timeout: 30000});
+
 export const ERROR_MESSAGE = {
     '400': '参数错误，请检查输入错误',
     '401': '未授权，请登录',
@@ -15,6 +16,7 @@ export const ERROR_MESSAGE = {
     '504': '网关超时',
     '505': 'HTTP版本不受支持',
 }
+
 export const TIMEOUT_ERROR_MESSAGE = '服务器响应超时，请刷新重试';
 instance.interceptors.response.use(res => res,
     err => {

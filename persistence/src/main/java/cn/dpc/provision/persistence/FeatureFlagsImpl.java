@@ -38,7 +38,7 @@ public class FeatureFlagsImpl implements FeatureFlags {
 
     @Override
     public Mono<Long> countAll() {
-        return featureFlagDBRepository.count();
+        return featureFlagDBRepository.countNotDeleted();
     }
 
     @Override

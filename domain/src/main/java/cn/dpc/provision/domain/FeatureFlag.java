@@ -12,9 +12,9 @@ public class FeatureFlag {
     @Setter
     private FeatureFlagId id;
 
-    private String featureKey;
+    private final String featureKey;
 
-    private FeatureFlagDescription description;
+    private final FeatureFlagDescription description;
 
     public FeatureFlag(String featureKey, FeatureFlagDescription description) {
        this.featureKey = featureKey;
@@ -25,7 +25,7 @@ public class FeatureFlag {
     public static class FeatureFlagId {
         private static final String PREFIX = "feature-flag-";
         @Getter
-        private String id;
+        private final String id;
 
         private FeatureFlagId(String id) {
             this.id = id;
@@ -41,7 +41,7 @@ public class FeatureFlag {
                                                 DataType dataType,
                                                 Object defaultValue,
                                                 Status status,
-                                                FeatureConfigTemplate configTemplate) {
+                                                FeatureConfigTemplate template) {
         public enum DataType {
             BOOLEAN, STRING, NUMBER, JSON
         }

@@ -66,7 +66,7 @@ public class FeatureFlagDB {
                 this.getDescription().dataType(),
                 this.getDescription().defaultValue(),
                 status,
-                this.getDescription().configTemplate()));
+                this.getDescription().template()));
         return this;
     }
 }

@@ -1,0 +1,122 @@
+<template>
+  <div>
+    <el-card>
+      <el-input style="width:440px; float: left" @clear="searchData" clearable v-model="searchForm.featureKey"
+                placeholder="请输入featureKey或名称" class="input-with-select">
+        <template #append>
+          <el-button icon="Search" @click="searchData"/>
+        </template>
+      </el-input>
+      <el-button type="primary" @click="() => router.push({ path: '/feature-flag/edit', query: {type: 'add'}})">
+        <el-icon><Plus /></el-icon>新增
+      </el-button>
+      <el-table :data="tableData" border style="width: 100%;margin-top:50px">
+        <el-table-column prop="featureKey" label="Feature Key" width="180"/>
+        <el-table-column prop="description.name" label="名称" width="180"/>
+        <el-table-column prop="description.status" label="状态" width="180"/>
+        <el-table-column label="操作">
+          <template #default="scope">
+            <el-button type="danger" size="small" @click="deleteData(scope.row.featureKey)">删除</el-button>
+            <el-button v-if="scope.row.description.status != 'PUBLISHED'" type="warning" size="small" @click="publish(scope.row.featureKey)">发布</el-button>
+            <el-button v-if="scope.row.description.status == 'PUBLISHED'" type="warning" size="small" @click="disable(scope.row.featureKey)">撤销</el-button>
+
+            <el-button size="small"
+                       @click="() => router.push({ path: '/feature-flag/edit', query: { featureKey: scope.row.featureKey,type: 'edit' } })">
+              编辑
+            </el-button>
+          </template>
+        </el-table-column>
+      </el-table>
+      <!-- 分页 -->
+      <el-pagination style="margin-top:20px" :current-page="searchForm.page" :page-size="searchForm.size"
+                     :page-sizes="[10, 20, 30, 40]" layout="->,total, sizes, prev, pager, next, jumper" :total="total"
+                     @size-change="handleSizeChange" @current-change="handleCurrentChange"/>
+    </el-card>
+  </div>
+</template>
+
+<script setup lang="ts">
+
+import {onMounted, reactive, ref} from "vue";
+import {useRouter} from "vue-router";
+import {FeatureFlag, FeatureFlags} from "../../domain/FeatureFlags";
+import {ElMessage} from "element-plus";
+
+const router = useRouter();
+
+const featureFlags = new FeatureFlags();
+const total = ref(0);
+
+const searchForm = reactive({
+  page: 1,
+  size: 10,
+  featureKey: ''
+})
+
+const tableData = ref([] as FeatureFlag[]);
+
+const deleteData = (id: string) => {
+  console.log('deleteUser');
+  featureFlags.delete(id).then(() => {
+    ElMessage.success('删除成功');
+    searchData();
+  }).catch((err) => {
+    console.log(err);
+    ElMessage.error('删除失败，请重试');
+  })
+}
+
+const searchData = () => {
+  console.log('searchData');
+  featureFlags.fetchAll(searchForm.page > 1 ? searchForm.page - 1 : 0, searchForm.size, searchForm.featureKey)
+      .then((res) => {
+        tableData.value = res.content;
+        total.value = res.total;
+        searchForm.page = res.page + 1;
+      }).catch((err) => {
+        console.log(err);
+        ElMessage.error('获取数据失败，请重试');
+      })
+}
+
+const publish = (featureKey: string) => {
+  console.log('publish');
+  featureFlags.publish(featureKey).then(() => {
+    ElMessage.success('发布成功');
+    searchData();
+  }).catch((err) => {
+    console.log(err);
+    ElMessage.error('发布失败，请重试');
+  })
+}
+
+const disable = (featureKey: string) => {
+  console.log('publish');
+  featureFlags.disable(featureKey).then(() => {
+    ElMessage.success('操作成功');
+    searchData();
+  }).catch((err) => {
+    console.log(err);
+    ElMessage.error('操作失败，请重试');
+  })
+}
+
+const handleSizeChange = () => {
+  console.log('handleSizeChange');
+  searchData();
+}
+
+const handleCurrentChange = () => {
+  console.log('handleCurrentChange');
+  searchData();
+}
+
+
+onMounted(() => {
+  searchData();
+});
+</script>
+
+<style scoped>
+
+</style>

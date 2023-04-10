@@ -1,4 +1,3 @@
-process.env.BASE_URL = 'http://localhost:3001/api';
 const errorMessages = [] as string[]
 jest.mock('element-plus', () => ({
   ElMessage: {
@@ -7,7 +6,7 @@ jest.mock('element-plus', () => ({
 }));
 import instance, {ERROR_MESSAGE, TIMEOUT_ERROR_MESSAGE} from "./axios";
 import nock from "nock";
-const baseUrl: string = process.env.BASE_URL;
+const baseUrl: string = 'http://localhost:3001/api';
 
 describe('Axios', () => {
   it('should create an axios instance', () => {
@@ -21,7 +20,7 @@ describe('Axios', () => {
         .reply(Number(status), {message: 'Internal Server Error'});
 
     // verify throw error
-    await expect(instance.get('/v1/health')).rejects.toThrow(Error);
+    await expect(instance.get(baseUrl + '/v1/health')).rejects.toThrow(Error);
     // verify alert message
     const message = ERROR_MESSAGE[status as keyof typeof ERROR_MESSAGE];
     expect(errorMessages[errorMessages.length - 1]).toEqual(message);
@@ -34,7 +33,7 @@ describe('Axios', () => {
         .reply(500, {message: 'Internal Server Error'});
 
     // verify throw error
-    await expect(instance.get('/v1/health', {timeout: 500})).rejects.toThrow(Error);
+    await expect(instance.get(baseUrl + '/v1/health', {timeout: 500})).rejects.toThrow(Error);
     // verify alert message
     expect(errorMessages[errorMessages.length - 1]).toEqual(TIMEOUT_ERROR_MESSAGE);
   });

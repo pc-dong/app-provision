@@ -18,7 +18,7 @@ const put = (url: string, data: any) => {
         .catch(error => reject(error)));
 }
 
-const del = (url: string, params: any) => {
+const del = (url: string, params?: any) => {
     return new Promise((resolve, reject) => instance.delete(url, {params})
         .then(res => resolve(res))
         .catch(error => reject(error)));

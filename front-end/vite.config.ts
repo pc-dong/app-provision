@@ -32,7 +32,7 @@ export default defineConfig({
       // 选项写法
       '/api': {
         target: 'http://localhost:8088',
-        changeOrigin: true,
+        changeOrigin: false,
         rewrite: (path) => path.replace(/^\/api/, '')
       }
     }

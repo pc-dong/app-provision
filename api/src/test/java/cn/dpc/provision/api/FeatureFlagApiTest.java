@@ -1,9 +1,10 @@
 package cn.dpc.provision.api;
 
-import cn.dpc.provision.api.dto.*;
-import cn.dpc.provision.domain.*;
-import cn.dpc.provision.domain.exception.ConfigurationNotFoundException;
-import com.fasterxml.jackson.core.JsonProcessingException;
+import cn.dpc.provision.api.dto.FeatureFlagRequest;
+import cn.dpc.provision.api.dto.FeatureFlagResponse;
+import cn.dpc.provision.api.dto.PageResponse;
+import cn.dpc.provision.domain.FeatureFlag;
+import cn.dpc.provision.domain.FeatureFlags;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,7 +22,8 @@ import static cn.dpc.provision.domain.FeatureFlag.FeatureFlagDescription.DataTyp
 import static cn.dpc.provision.domain.FeatureFlag.FeatureFlagDescription.Status.PUBLISHED;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(SpringExtension.class)
@@ -111,9 +113,24 @@ class FeatureFlagApiTest {
                 .isOk()
                 .expectBody(PageResponse.class)
                 .value(response -> {
-                    assertTrue(response.getContent().size() == 1);
-                    assertTrue(response.getTotal() == 2);
+                    assertEquals(1, response.getContent().size());
+                    assertEquals(2, response.getTotal());
                 });
+    }
+
+    @Test
+    public void should_get_by_id_success() {
+        String featureKey = "featureKey";
+        FeatureFlag featureFlag = generateFeatureFlag(featureKey);
+        when(featureFlags.getByFeatureKey(any())).thenReturn(Mono.just(featureFlag));
+
+        webClient.get()
+                .uri("/feature-flags/" + featureKey)
+                .exchange()
+                .expectStatus()
+                .isOk()
+                .expectBody(FeatureFlagResponse.class)
+                .value(response -> assertEquals(response.getFeatureKey(), featureKey));
     }
 
     private FeatureFlagRequest generateFeatureRequest(FeatureFlag featureFlag) {
