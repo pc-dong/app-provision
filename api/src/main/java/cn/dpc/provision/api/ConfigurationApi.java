@@ -2,6 +2,7 @@ package cn.dpc.provision.api;
 
 import cn.dpc.provision.api.dto.ConfigurationRequest;
 import cn.dpc.provision.api.dto.ConfigurationResponse;
+import cn.dpc.provision.api.dto.PageResponse;
 import cn.dpc.provision.domain.Configuration;
 import cn.dpc.provision.domain.Configurations;
 import lombok.RequiredArgsConstructor;
@@ -42,6 +43,22 @@ public class ConfigurationApi {
     Flux<ConfigurationResponse> listAll(String type) {
         return configurations.findAllAvailableByType(type)
                 .map(ConfigurationResponse::from);
+    }
+
+    @GetMapping("/page")
+    Mono<PageResponse<ConfigurationResponse>> listAll(@RequestParam(required = false, defaultValue = "0") int page,
+                                                      @RequestParam(required = false, defaultValue = "10") int pageSize,
+                                                      @RequestParam(required = false, defaultValue = "") String key,
+                                                      String type) {
+        return configurations.findAllByPage(type, page, pageSize, key)
+                .map(ConfigurationResponse::from)
+                .collectList().zipWith(configurations.countAll(type, key))
+                .map(tuple -> PageResponse.<ConfigurationResponse>builder()
+                        .content(tuple.getT1())
+                        .total(tuple.getT2())
+                        .page(page)
+                        .pageSize(pageSize)
+                        .build());
     }
 
     @GetMapping("/{id}")

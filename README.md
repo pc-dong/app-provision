@@ -51,8 +51,6 @@
 docker-compose up -d
 ``` 
 
-第一次启动，访问 http://localhost:8091, 配置cluster 和 bucket
-
 ## 编译
 
 ```shell

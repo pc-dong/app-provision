@@ -24,4 +24,8 @@ public interface Configurations {
     Flux<Configuration> findAllAvailableByType(String type);
 
     Mono<Void> priority(List<ConfigurationId> ids);
+
+    Flux<Configuration> findAllByPage(String type, int page, int pageSize,  String key);
+
+    Mono<Long> countAll(String type, String key);
 }

@@ -9,6 +9,7 @@ import cn.dpc.provision.domain.exception.StatusNotMatchException;
 import cn.dpc.provision.persistence.repository.ConfigurationDB;
 import cn.dpc.provision.persistence.repository.ConfigurationDBRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.domain.Sort.Order;
 import org.springframework.stereotype.Service;
@@ -99,6 +100,18 @@ public class ConfigurationsImpl implements Configurations {
                                 .map(db -> db.updatePriority(Long.valueOf(idAndPriority.getValue())))
                 )
                 .transformDeferred(repository::saveAll).then();
+    }
+
+    @Override
+    public Flux<Configuration> findAllByPage(String type, int page, int pageSize, String key) {
+        Pageable pageable = Pageable.ofSize(pageSize).withPage(page);
+        return repository.findAllByPage(type, key, pageable.getOffset(), pageable.getPageSize())
+                .map(ConfigurationDB::to);
+    }
+
+    @Override
+    public Mono<Long> countAll(String type, String key) {
+        return repository.countAll(type, key);
     }
 
     private Mono<Void> updateStatus(ConfigurationId id, ConfigurationDescription.StaticStatus staticStatus) {

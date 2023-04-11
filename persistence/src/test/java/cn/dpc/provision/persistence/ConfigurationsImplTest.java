@@ -12,6 +12,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.lang.NonNull;
 import org.springframework.test.context.ActiveProfiles;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
@@ -256,14 +257,75 @@ class ConfigurationsImplTest extends ConfigurationTestBase{
 
         configurations.getById(configuration1.getId())
                 .as(StepVerifier::create)
-                .expectNextMatches(item -> item.getDescription().getPriority() == 2);
+                .expectNextMatches(item -> item.getDescription().getPriority() == 2)
+                .verifyComplete();
 
         configurations.getById(configuration2.getId())
                 .as(StepVerifier::create)
-                .expectNextMatches(item -> item.getDescription().getPriority() == 0);
+                .expectNextMatches(item -> item.getDescription().getPriority() == 0)
+                .verifyComplete();
 
         configurations.getById(configuration3.getId())
                 .as(StepVerifier::create)
-                .expectNextMatches(item -> item.getDescription().getPriority() == 1);
+                .expectNextMatches(item -> item.getDescription().getPriority() == 1)
+                .verifyComplete();
+    }
+
+    @Test
+    public void should_findAllByPage_return_empty_when_no_records() {
+        configurations.findAllByPage("type", 0, 10, null)
+                .as(StepVerifier::create)
+                .expectNextCount(0)
+                .verifyComplete();
+    }
+
+    @Test
+    public void should_findAllByPage_return_by_page() {
+        configurations.add(generateConfiguration(null, "key1", ConfigurationDescription.StaticStatus.DRAFT))
+                .block();
+        configurations.add(generateConfiguration(null, "key1", ConfigurationDescription.StaticStatus.PUBLISHED))
+                .block();
+        configurations.add(generateConfiguration(null, "key1", ConfigurationDescription.StaticStatus.DISABLED))
+                .block();
+        configurations.add(generateConfiguration(null, "key1", ConfigurationDescription.StaticStatus.DELETED))
+                .block();
+        Mono.delay(Duration.ofMillis(1000)).block();
+
+        configurations.findAllByPage("type", 0, 2, null)
+                .as(StepVerifier::create)
+                .expectNextCount(2)
+                .verifyComplete();
+
+        configurations.findAllByPage("type", 1, 2, null)
+                .as(StepVerifier::create)
+                .expectNextCount(1)
+                .verifyComplete();
+    }
+
+
+    @Test
+    public void should_countAll_return_0_when_no_records() {
+        configurations.countAll("type", null)
+                .as(StepVerifier::create)
+                .expectNext(0L)
+                .verifyComplete();
+    }
+
+    @Test
+    public void should_countAll_return_records_number() {
+        configurations.add(generateConfiguration(null, "key1", ConfigurationDescription.StaticStatus.DRAFT))
+                .block();
+        configurations.add(generateConfiguration(null, "key1", ConfigurationDescription.StaticStatus.PUBLISHED))
+                .block();
+        configurations.add(generateConfiguration(null, "key1", ConfigurationDescription.StaticStatus.DISABLED))
+                .block();
+        configurations.add(generateConfiguration(null, "key1", ConfigurationDescription.StaticStatus.DELETED))
+                .block();
+        Mono.delay(Duration.ofMillis(1000)).block();
+
+        configurations.countAll("type", null)
+                .as(StepVerifier::create)
+                .expectNext(3L)
+                .verifyComplete();
     }
 }

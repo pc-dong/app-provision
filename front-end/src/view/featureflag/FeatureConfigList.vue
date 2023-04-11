@@ -2,9 +2,9 @@
   <div>
     <el-card>
       <el-input
-        v-model="searchForm.featureKey"
+        v-model="searchForm.key"
         clearable
-        placeholder="请输入featureKey或名称"
+        placeholder="请输入configKey或名称"
         class="input-with-select"
         @clear="searchData"
       >
@@ -22,33 +22,21 @@
         <el-icon><Plus /></el-icon>新增
       </el-button>
       <el-table :data="tableData" border style="width: 100%; margin-top: 50px">
-        <el-table-column label="Feature Key" width="180">
-          <template #default="scope">
-            <el-button
-              @click="
-                router.push({
-                  path: '/feature-config',
-                  query: { featureKey: scope.row.featureKey },
-                })
-              "
-            >
-              {{ scope.row.featureKey }}
-            </el-button>
-          </template>
-        </el-table-column>
-        <el-table-column prop="description.name" label="名称" width="180" />
-        <el-table-column prop="description.status" label="状态" width="180" />
+        <el-table-column label="id" prop="id" width="180" />
+        <el-table-column prop="type" label="Feature Key" width="180" />
+        <el-table-column prop="name" label="名称" width="180" />
+        <el-table-column prop="status" label="状态" width="180" />
         <el-table-column label="操作">
           <template #default="scope">
             <el-button
-              v-if="scope.row?.description?.status != 'PUBLISHED'"
+              v-if="scope.row?.staticStatus !== 'PUBLISHED'"
               type="warning"
               size="small"
               @click="publish(scope.row.featureKey)"
               >发布</el-button
             >
             <el-button
-              v-if="scope.row?.description?.status == 'PUBLISHED'"
+              v-if="scope.row?.staticStatus === 'PUBLISHED'"
               type="warning"
               size="small"
               @click="disable(scope.row.featureKey)"
@@ -92,27 +80,37 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, reactive, ref } from "vue";
+import { onBeforeMount, onMounted, reactive, ref } from "vue";
 import { useRouter } from "vue-router";
-import { FeatureFlag, FeatureFlags } from "../../domain/FeatureFlags";
+import { useRoute } from "vue-router";
+
+import { FeatureConfig, FeatureConfigs } from "../../domain/FeatureConfigs";
 import { ElMessage } from "element-plus";
+
+const route = useRoute();
+
+const type = ref();
+onBeforeMount(() => {
+  console.log("onBeforeMount");
+  type.value = route.query.featureKey;
+});
 
 const router = useRouter();
 
-const featureFlags = new FeatureFlags();
+const featureConfigs = new FeatureConfigs();
 const total = ref(0);
 
 const searchForm = reactive({
   page: 1,
   size: 10,
-  featureKey: "",
+  key: "",
 });
 
-const tableData = ref([] as FeatureFlag[]);
+const tableData = ref([] as FeatureConfig[]);
 
 const deleteData = (id: string) => {
   console.log("deleteUser");
-  featureFlags
+  featureConfigs
     .delete(id)
     .then(() => {
       ElMessage.success("删除成功");
@@ -126,11 +124,12 @@ const deleteData = (id: string) => {
 
 const searchData = () => {
   console.log("searchData");
-  featureFlags
+  featureConfigs
     .fetchAll(
+      type.value,
       searchForm.page > 1 ? searchForm.page - 1 : 0,
       searchForm.size,
-      searchForm.featureKey
+      searchForm.key
     )
     .then((res) => {
       tableData.value = res.content;
@@ -145,7 +144,7 @@ const searchData = () => {
 
 const publish = (featureKey: string) => {
   console.log("publish");
-  featureFlags
+  featureConfigs
     .publish(featureKey)
     .then(() => {
       ElMessage.success("发布成功");
@@ -159,7 +158,7 @@ const publish = (featureKey: string) => {
 
 const disable = (featureKey: string) => {
   console.log("publish");
-  featureFlags
+  featureConfigs
     .disable(featureKey)
     .then(() => {
       ElMessage.success("操作成功");
