@@ -1,0 +1,36 @@
+@startuml
+'https://plantuml.com/component-diagram
+package "前端" {
+  [APP]
+  [H5]
+  [小程序]
+}
+
+package "BFF" {
+  [APP] --> [APP BFF]
+  [H5] --> [H5 BFF]
+  [小程序] --> [小程序 BFF]
+}
+
+
+
+package "AB Testing" {
+    package "数据埋点" {
+      [APP BFF] --> [数据埋点]
+      [H5 BFF] --> [数据埋点]
+      [小程序 BFF] --> [数据埋点]
+      [数据埋点] -- [数据仓库]
+    }
+  [APP BFF] --> [Feature Flag]
+  [H5 BFF] --> [Feature Flag]
+  [小程序 BFF] --> [Feature Flag]
+  [Feature Flag] -- [Feature Configs]
+  [Feature Flag] -Right- [Experiments]
+  [Experiments] -- [Experiments Analytics]
+  [Experiments Analytics] -Right-> [数据仓库]
+}
+
+
+
+
+@enduml

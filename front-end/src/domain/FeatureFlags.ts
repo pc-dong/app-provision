@@ -30,6 +30,16 @@ export enum DataType {
   JSON = "JSON",
 }
 
+export enum TemplateDataType {
+  BOOLEAN = "BOOLEAN",
+  STRING = "STRING",
+  NUMBER = "NUMBER",
+  OBJECT = "OBJECT",
+  LIST_STRING = "LIST_STRING",
+  LIST_NUMBER = "LIST_NUMBER",
+  LIST_OBJECT = "LIST_OBJECT",
+}
+
 export class FeatureFlags {
   constructor(private readonly baseUrl: string = "/api") {}
 

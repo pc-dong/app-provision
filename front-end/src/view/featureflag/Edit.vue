@@ -3,77 +3,85 @@
     <el-card class="box-card">
       <template #header>
         <div class="card-header">
-          <span>{{title}}</span>
-          <el-button size="mini" style="float:right" @click="router.go(-1)">返回</el-button>
+          <span>{{ title }}</span>
+          <el-button size="mini" style="float: right" @click="router.go(-1)"
+            >返回
+          </el-button>
         </div>
       </template>
       <el-form
-          :model="featureFlag"
-          :rules="formRules"
-          ref="form"
-          label-width="140px"
+        :model="featureFlag"
+        :rules="formRules"
+        ref="form"
+        label-width="140px"
       >
-        <el-form-item
-            label="Feature Key"
-            prop="featureKey"
-        >
-          <el-input
-              v-model="featureFlag.featureKey"
-              autocomplete="off"
-          />
+        <el-form-item label="Feature Key" prop="featureKey">
+          <el-input v-model="featureFlag.featureKey" autocomplete="off" />
+        </el-form-item>
+        <el-form-item label="Feature Name" prop="description.name">
+          <el-input v-model="featureFlag.description.name" autocomplete="off" />
         </el-form-item>
         <el-form-item
-            label="Feature Name"
-            prop="description.name"
+          label="Feature Description"
+          prop="description.description"
         >
           <el-input
-              v-model="featureFlag.description.name"
-              autocomplete="off"
+            v-model="featureFlag.description.description"
+            autocomplete="off"
           />
         </el-form-item>
-        <el-form-item
-            label="Feature Description"
-            prop="description.description"
-        >
-          <el-input
-              v-model="featureFlag.description.description"
-              autocomplete="off"
-          />
-        </el-form-item>
-        <el-form-item
-            label="Data Type"
-            prop="description.dataType"
-        >
+        <el-form-item label="Data Type" prop="description.dataType">
           <el-select
-              v-model="featureFlag.description.dataType"
-              :onchange="handleDataTypeChange"
+            v-model="featureFlag.description.dataType"
+            @change="handleDataTypeChange"
           >
             <el-option
-                v-for="item in Object.keys(DataType)"
-                :key="item"
-                :label="item"
-                :value="item"
+              v-for="item in Object.keys(DataType)"
+              :key="item"
+              :label="item"
+              :value="item"
             />
           </el-select>
         </el-form-item>
         <el-form-item
-            label="Default Value"
-            prop="description.defaultValue"
+          v-if="!shouldShowConfigTemplate()"
+          label="Default Value"
+          prop="description.defaultValue"
         >
-          <el-input v-model="featureFlag.description.defaultValue" />
+          <el-input
+            v-model="featureFlag.description.defaultValue"
+            type="textarea"
+          />
         </el-form-item>
         <!-- 如果dataType选择了JSON，则可以增加一个Config Template配置项-->
         <el-form-item
-            v-if="featureFlag.description.dataType === 'JSON'"
-            label="Config Template"
-            prop="description.template"
+          v-if="shouldShowConfigTemplate()"
+          label="Config Template"
+          prop="description.template"
         >
-          <el-input v-model="featureFlag.description.template" />
+          <!--          <el-collapse>-->
+          <!--            <el-collapse-item>-->
+          <el-row :gutter="10">
+            <feature-flag-template-item
+              v-for="(item, index) in featureFlag.description.template.items"
+              :key="item.index"
+              :index="index"
+              :item="item"
+              @deleteItem="deleteTemplateItem"
+            />
+            <el-col :span="4" :offset="20">
+              <el-button type="primary" @click="addTemplateItem"
+                >添加Item
+              </el-button>
+            </el-col>
+          </el-row>
+          <!--            </el-collapse-item>-->
+          <!--          </el-collapse>-->
         </el-form-item>
+
         <el-form-item>
           <el-button type="default" @click="resetForm()">重置</el-button>
           <el-button type="primary" @click="submitForm()">提交</el-button>
-
         </el-form-item>
       </el-form>
     </el-card>
@@ -81,132 +89,238 @@
 </template>
 
 <script setup lang="ts">
-import {onBeforeMount, ref} from "vue";
-import {useRoute, useRouter} from "vue-router";
-import {ElForm, ElFormItem, ElSelect, ElOption, ElInput, ElButton, ElMessage} from 'element-plus'
-import {FeatureFlag, FeatureFlags} from "../../domain/FeatureFlags";
-import {DataType} from "../../domain/FeatureFlags";
+import { onBeforeMount, ref } from "vue";
+import { useRoute, useRouter } from "vue-router";
+import {
+  ElForm,
+  ElFormItem,
+  ElSelect,
+  ElOption,
+  ElInput,
+  ElButton,
+  ElMessage,
+} from "element-plus";
+import { FeatureFlag, FeatureFlags } from "../../domain/FeatureFlags";
+import { DataType } from "../../domain/FeatureFlags";
+import FeatureFlagTemplateItem from "../../components/FeatureFlagTemplateItem.vue";
 
 const route = useRoute();
 const router = useRouter();
 const featureFlags = new FeatureFlags();
 const featureFlag = ref({} as FeatureFlag);
 
-const title = ref("Feature Flag")
-const formType = ref("add")
-const originalFeatureFlag = ref({} as FeatureFlag)
+const title = ref("Feature Flag");
+const formType = ref("add");
+const originalFeatureFlag = ref({} as FeatureFlag);
 
 onBeforeMount(async () => {
   title.value = (route.query.type == "edit" ? "编辑" : "新增") + "Feature Flag";
   formType.value = route.query.type == "edit" ? "edit" : "add";
-  featureFlag.value = {description: {status: "PUBLISHED"}} as FeatureFlag;
+  featureFlag.value = { description: { status: "PUBLISHED" } } as FeatureFlag;
 
   if (route.query.featureKey) {
     const res = await featureFlags.fetch(route.query.featureKey.toString());
     featureFlag.value = res;
     originalFeatureFlag.value = res;
   }
-})
+});
 
 const formRules = {
-  'description.dataType': [
-    {required: true, message: 'Please select data type', trigger: 'submit'}
+  "description.dataType": [
+    { required: true, message: "Please select data type", trigger: "submit" },
   ],
   featureKey: [
-    {required: true, message: 'Please enter feature key', trigger: 'submit'}
+    { required: true, message: "Please enter feature key", trigger: "submit" },
   ],
-  'description.name': [
-    {required: true, message: 'Please enter feature name', trigger: 'submit'}
+  "description.name": [
+    { required: true, message: "Please enter feature name", trigger: "submit" },
   ],
-  'description.defaultValue': [
-    {required: true, message: 'Please enter default value', trigger: 'submit'},
+  "description.defaultValue": [
+    {
+      required: true,
+      message: "Please enter default value",
+      trigger: "submit",
+    },
     {
       validator: (rule, value) => {
-        const dataType = featureFlag.value.description.dataType
+        const dataType = featureFlag.value.description.dataType;
         switch (dataType) {
-          case 'BOOLEAN':
-            if (!['true', 'false'].includes(value)) {
-              return Promise.reject('Please enter true or false')
+          case "BOOLEAN":
+            if (!["true", "false"].includes(value)) {
+              return Promise.reject("Please enter true or false");
             }
-            break
-          case 'STRING':
+            break;
+          case "STRING":
             if (!value) {
-              return Promise.reject('Please enter string value')
+              return Promise.reject("Please enter string value");
             }
-            break
-          case 'NUMBER':
+            break;
+          case "NUMBER":
             if (isNaN(Number(value))) {
-              return Promise.reject('Please enter number value')
+              return Promise.reject("Please enter number value");
             }
-            break
-          case 'JSON_STRING':
+            break;
+          case "JSON_STRING":
             try {
-              JSON.parse(value)
+              JSON.parse(value);
             } catch (e) {
-              return Promise.reject('Please enter valid JSON string')
+              return Promise.reject("Please enter valid JSON string");
             }
-            break
-          case 'JSON':
+            break;
+          case "JSON":
             try {
-              JSON.parse(value)
+              JSON.parse(value);
             } catch (e) {
-              return Promise.reject('Please enter valid JSON object')
+              return Promise.reject("Please enter valid JSON object");
             }
-            break
+            break;
         }
-        return Promise.resolve()
+        return Promise.resolve();
       },
-      trigger: 'submit'
-    }
-  ]
-}
+      trigger: "submit",
+    },
+  ],
+};
 
+let tempItems = [] as any[];
 const handleDataTypeChange = (value: string) => {
-  if (value === 'JSON') {
-    featureFlag.value.description.template = {
-      items: []
+  console.log(tempItems);
+  if (value === "JSON") {
+    if (tempItems.length == 0) {
+      tempItems.push({
+        index: templateItemIndex++,
+        key: "",
+        name: "",
+        description: "",
+        dataType: "",
+        defaultValue: "",
+      });
     }
+    featureFlag.value.description.template = {
+      items: [...tempItems],
+    };
   } else {
-    featureFlag.value.description.template = null as any
+    tempItems = featureFlag.value.description.template.items || [];
+    featureFlag.value.description.template = { items: [] } as any;
   }
-}
+};
 
-const form = ref<ElForm>(null as ElForm)
+let templateItemIndex = 0;
+
+const addTemplateItem = () => {
+  featureFlag.value.description.template.items.push({
+    index: templateItemIndex++,
+    key: "",
+    name: "",
+    description: "",
+    dataType: "",
+    defaultValue: "",
+  });
+};
+
+const deleteTemplateItem = (index: number) => {
+  console.log(JSON.stringify(featureFlag.value.description.template.items));
+  console.log(index);
+  featureFlag.value.description.template.items.splice(index, 1);
+};
+
+const form = ref(null);
+
+const shouldShowConfigTemplate = () => {
+  return featureFlag.value.description.dataType === "JSON";
+};
+
+const shouldShowSubItems = (item: any) => {
+  return ["OBJECT", "LIST_OBJECT"].includes(item.dataType);
+};
+
+const validateTemplateFail = (message: string): boolean => {
+  ElMessage.error(message);
+  return false;
+};
+
+const validateTemplateItems = (): boolean => {
+  if (!shouldShowConfigTemplate()) {
+    return true;
+  }
+
+  const items = featureFlag.value.description.template.items;
+  if (items.length == 0) {
+    return validateTemplateFail("Please add at least one item");
+  }
+  return validateSubItems(items, "");
+  return true;
+};
+
+const validateSubItems = (subItems: any[], parentKey: string): boolean => {
+  if (!subItems || subItems.length == 0) {
+    return validateTemplateFail(
+      "Please add at least one item for " + parentKey
+    );
+  }
+
+  for (let i = 0; i < subItems.length; i++) {
+    const item = subItems[i];
+    if (!item.key) {
+      return validateTemplateFail(
+        "Please enter key for " + parentKey + " item " + (i + 1)
+      );
+    }
+
+    if (!item.name) {
+      return validateTemplateFail(
+        "Please enter name for " + parentKey + " item " + (i + 1)
+      );
+    }
+
+    if (!item.dataType) {
+      return validateTemplateFail(
+        "Please select data type for " + parentKey + " item " + (i + 1)
+      );
+    }
+
+    if (shouldShowSubItems(item)) {
+      return validateSubItems(
+        item.subItems,
+        (parentKey ? parentKey + "." : "") + item.key
+      );
+    }
+  }
+
+  return true;
+};
 
 const submitForm = async () => {
   form.value.validate(async (valid) => {
-    if (valid) {
-      console.log('Form is valid')
+    if (valid && validateTemplateItems()) {
+      console.log("Form is valid");
       try {
-        if(formType.value.toLowerCase() == 'add') {
-          await featureFlags.create(featureFlag.value)
+        if (formType.value.toLowerCase() == "add") {
+          await featureFlags.create(featureFlag.value);
         } else {
-          await featureFlags.update(featureFlag.value)
+          await featureFlags.update(featureFlag.value);
         }
-        ElMessage.success('操作成功！')
+        ElMessage.success("操作成功！");
         setTimeout(() => {
-          router.push({path: '/feature-flag'})
-        }, 1000)
+          router.push({ path: "/feature-flag" });
+        }, 1000);
       } catch (error: any) {
-        ElMessage.error('操作失败，请稍后重试！')
+        ElMessage.error("操作失败，请稍后重试！");
       }
     } else {
-      return false
+      return false;
     }
-  })
-}
+  });
+};
 
 const resetForm = () => {
-  if(formType.value.toLowerCase() == "add") {
-    form.value.resetFields()
+  if (formType.value.toLowerCase() == "add") {
+    form.value.resetFields();
   } else {
-    form.value.resetFields()
-    featureFlag.value = originalFeatureFlag.value
+    form.value.resetFields();
+    featureFlag.value = originalFeatureFlag.value;
   }
-}
-
+};
 </script>
 
-<style scoped>
-
-</style>
+<style scoped></style>

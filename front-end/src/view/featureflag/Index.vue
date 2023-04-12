@@ -41,14 +41,14 @@
         <el-table-column label="操作">
           <template #default="scope">
             <el-button
-              v-if="scope.row?.description?.status != 'PUBLISHED'"
+              v-if="scope.row?.description?.status !== 'PUBLISHED'"
               type="warning"
               size="small"
               @click="publish(scope.row.featureKey)"
               >发布</el-button
             >
             <el-button
-              v-if="scope.row?.description?.status == 'PUBLISHED'"
+              v-if="scope.row?.description?.status === 'PUBLISHED'"
               type="warning"
               size="small"
               @click="disable(scope.row.featureKey)"

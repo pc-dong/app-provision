@@ -1,0 +1,56 @@
+@startuml
+
+!define AWSPUML https://raw.githubusercontent.com/awslabs/aws-icons-for-plantuml/v15.0.0/dist
+
+'!includeurl AWSPUML/General/Development/_common.puml
+!includeurl AWSPUML/Compute/AmazonEC2.puml
+!includeurl AWSPUML/ApplicationIntegration/AmazonAPIGateway.puml
+!includeurl AWSPUML/ApplicationIntegration/AmazonAppSync.puml
+!includeurl AWSPUML/General/SecurityIdentityCompliance/_common.puml
+!includeurl AWSPUML/SecurityIdentityCompliance/AmazonCognito.puml
+!includeurl AWSPUML/Compute/AmazonECS.puml
+!includeurl AWSPUML/General/Mobile/_common.puml
+!includeurl AWSPUML/General/Mobile/aws-amplify.puml
+!includeurl AWSPUML/Compute/AWSLambda.puml
+!includeurl AWSPUML/General/ManagementGovernance/_common.puml
+!includeurl AWSPUML/General/ManagementGovernance/aws-organizations.puml
+!includeurl AWSPUML/General/ManagementGovernance/aws-control-tower.puml
+!includeurl AWSPUML/Compute/AmazonEKS.puml
+
+!define arrow-end-plain
+!define ARROWHEADURL https://raw.githubusercontent.com/awslabs/aws-icons-for-plantuml/v15.0.0/dist/awsicons/arrowheads
+!includeurl ARROWHEADURL/plain.puml
+
+!define AWScolor LightBlue
+
+title 前端、BFF层和领域层的进程间架构图
+
+!boundary "前端" {
+    [APP] as app
+    [H5] as h5
+    [小程序] as mini
+}
+
+!boundary "BFF层" {
+    [BFF] as bff
+}
+
+!boundary "领域层" {
+    [AB Testing 平台] as ab_testing
+}
+
+app -right-> AWS::APIGateway: HTTPS
+h5 -right-> AWS::APIGateway: HTTPS
+mini -right-> AWS::APIGateway: HTTPS
+
+AWS::APIGateway -down-> AWS::Lambda: HTTPS
+AWS::Lambda -down-> AWS::ECS: HTTPS
+AWS::ECS -down-> AWS::AppMesh: HTTP
+AWS::AppMesh -down-> bff
+
+bff -down-> AWS::Lambda: HTTPS
+AWS::Lambda -down-> AWS::ECS: HTTPS
+AWS::ECS -down-> AWS::AppMesh: HTTP
+AWS::AppMesh -down-> ab_testing
+
+@enduml
