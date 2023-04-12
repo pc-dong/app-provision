@@ -20,6 +20,6 @@ public class DifferFactory {
             return incrementalDiffer;
         }
 
-        return null;
+        return fullDiffer;
     }
 }

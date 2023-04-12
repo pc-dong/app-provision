@@ -1,6 +1,15 @@
 <template>
   <div>
     <el-card>
+      <el-card-header style="padding: 5px">
+        <div class="card-header">
+          <span class="title"> FeatureKey: {{ type }}</span>
+          <el-button size="mini" style="float: right" @click="router.go(-1)"
+            >返回
+          </el-button>
+        </div>
+      </el-card-header>
+      <el-divider />
       <el-input
         v-model="searchForm.key"
         clearable
@@ -16,15 +25,18 @@
         type="primary"
         @click="
           () =>
-            router.push({ path: '/feature-flag/edit', query: { type: 'add' } })
+            router.push({
+              path: '/feature-config/edit',
+              query: { type: 'add', featureKey: type },
+            })
         "
       >
         <el-icon><Plus /></el-icon>新增
       </el-button>
       <el-table :data="tableData" border style="width: 100%; margin-top: 50px">
-        <el-table-column label="id" prop="id" width="180" />
+        <el-table-column label="id" prop="id" width="320" />
         <el-table-column prop="type" label="Feature Key" width="180" />
-        <el-table-column prop="name" label="名称" width="180" />
+        <el-table-column prop="title" label="配置标题" width="180" />
         <el-table-column prop="status" label="状态" width="180" />
         <el-table-column label="操作">
           <template #default="scope">
@@ -32,20 +44,20 @@
               v-if="scope.row?.staticStatus !== 'PUBLISHED'"
               type="warning"
               size="small"
-              @click="publish(scope.row.featureKey)"
+              @click="publish(scope.row.id)"
               >发布</el-button
             >
             <el-button
               v-if="scope.row?.staticStatus === 'PUBLISHED'"
               type="warning"
               size="small"
-              @click="disable(scope.row.featureKey)"
+              @click="disable(scope.row.id)"
               >撤销</el-button
             >
             <el-button
               type="danger"
               size="small"
-              @click="deleteData(scope.row.featureKey)"
+              @click="deleteData(scope.row.id)"
               >删除</el-button
             >
 
@@ -54,8 +66,8 @@
               @click="
                 () =>
                   router.push({
-                    path: '/feature-flag/edit',
-                    query: { featureKey: scope.row.featureKey, type: 'edit' },
+                    path: '/feature-config/edit',
+                    query: { featureKey: type, type: 'edit', id: scope.row.id },
                   })
               "
             >
@@ -189,5 +201,11 @@ onMounted(() => {
 .input-with-select {
   width: 400px;
   float: left;
+}
+
+span.title {
+  float: left;
+  font-size: 15px;
+  font-family: "Arial Black";
 }
 </style>

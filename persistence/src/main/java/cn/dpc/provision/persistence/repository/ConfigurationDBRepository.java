@@ -10,7 +10,7 @@ import reactor.core.publisher.Mono;
 public interface ConfigurationDBRepository extends ReactiveCrudRepository<ConfigurationDB, String> {
 
     String FILTER_CONDITION = "WHERE #{#n1ql.filter} AND type=$type AND description.staticStatus != 'DELETED' " +
-            "AND (#{#key==null || #key==''} OR LOWER(description.name) LIKE '%' || LOWER($key) || '%' OR LOWER(description.description) LIKE '%' || LOWER($key) || '%') ";
+            "AND (#{#key==null || #key==''} OR LOWER(description.title) LIKE '%' || LOWER($key) || '%' OR LOWER(description.description) LIKE '%' || LOWER($key) || '%') ";
 
     Flux<ConfigurationDB> findByType(String type, Sort sort);
 

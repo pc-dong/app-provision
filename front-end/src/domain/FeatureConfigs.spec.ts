@@ -174,13 +174,13 @@ describe("FeatureConfig", () => {
 
   describe("publish", () => {
     it("should publish success when api status is 200", async () => {
-      nock(baseUrl).post("/configurations/test/publish").reply(200);
+      nock(baseUrl).put("/configurations/test/publish").reply(200);
 
       await featureConfigs.publish("test");
     });
 
     it("should throw error when response is not 200", async () => {
-      nock(baseUrl).post("/configurations/test/publish").reply(500);
+      nock(baseUrl).put("/configurations/test/publish").reply(500);
 
       await expect(featureConfigs.publish("test")).rejects.toThrow();
     });
@@ -188,13 +188,13 @@ describe("FeatureConfig", () => {
 
   describe("disable", () => {
     it("should disable success when api status is 200", async () => {
-      nock(baseUrl).post("/configurations/test/disable").reply(200);
+      nock(baseUrl).put("/configurations/test/disable").reply(200);
 
       await featureConfigs.disable("test");
     });
 
     it("should throw error when response is not 200", async () => {
-      nock(baseUrl).post("/configurations/test/disable").reply(500);
+      nock(baseUrl).put("/configurations/test/disable").reply(500);
 
       await expect(featureConfigs.disable("test")).rejects.toThrow();
     });

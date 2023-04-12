@@ -26,6 +26,8 @@ public class ConfigurationRequest {
         var description = ConfigurationDescription.builder()
                 .key(key)
                 .data(data)
+                .title(title)
+                .description(this.description)
                 .trackingData(trackingData)
                 .staticStatus(staticStatus)
                 .timeRange(timeRange)

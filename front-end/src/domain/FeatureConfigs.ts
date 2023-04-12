@@ -40,11 +40,11 @@ export class FeatureConfigs {
   }
 
   publish(id: string): Promise<void> {
-    return http.post(this.getUrl(`/configurations/${id}/publish`), {}).then();
+    return http.put(this.getUrl(`/configurations/${id}/publish`), {}).then();
   }
 
   disable(id: string): Promise<void> {
-    return http.post(this.getUrl(`/configurations/${id}/disable`), {}).then();
+    return http.put(this.getUrl(`/configurations/${id}/disable`), {}).then();
   }
 }
 

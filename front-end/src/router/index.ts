@@ -42,6 +42,13 @@ const routes = [
         },
         component: () => import("../view/featureflag/FeatureConfigList.vue"),
       },
+      {
+        path: "/feature-config/edit",
+        meta: {
+          title: "Feature Config",
+        },
+        component: () => import("../view/featureflag/FeatureConfigEdit.vue"),
+      },
     ],
   },
 ];

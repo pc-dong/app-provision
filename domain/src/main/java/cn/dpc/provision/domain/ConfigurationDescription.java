@@ -1,5 +1,6 @@
 package cn.dpc.provision.domain;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.*;
 
 import java.time.LocalDateTime;
@@ -65,7 +66,7 @@ public class ConfigurationDescription {
     }
 
     public enum StaticStatus {
-        DRAFT, PUBLISHED, DISABLED, DELETED;
+        DRAFT, PUBLISHED, DISABLED, DELETED
     }
 
     public static class ConfigurationDescriptionInternalBuilder extends ConfigurationDescriptionBuilder {
@@ -93,7 +94,7 @@ public class ConfigurationDescription {
     }
 
     public enum DynamicStatus {
-        DRAFT, NOT_BEGIN, IN_PROGRESS, EXPIRED, DISABLED, DELETED;
+        DRAFT, NOT_BEGIN, IN_PROGRESS, EXPIRED, DISABLED, DELETED
     }
 
     @Data
@@ -104,10 +105,10 @@ public class ConfigurationDescription {
         private int times;
         private List<DailyCondition> dailyConditions;
 
-        public static enum DisplayRuleType {
+        public enum DisplayRuleType {
             EVERYTIME,
             FIX_TIMES,
-            DAY_FIX_TIMES;
+            DAY_FIX_TIMES
         }
 
         @Data
@@ -122,7 +123,9 @@ public class ConfigurationDescription {
     @AllArgsConstructor
     @NoArgsConstructor
     public static class TimeRange {
+        @JsonFormat(pattern = "yyyy-MM-dd HHmmss")
         LocalDateTime startDate;
+        @JsonFormat(pattern = "yyyy-MM-dd HHmmss")
         LocalDateTime endDate;
     }
 }
