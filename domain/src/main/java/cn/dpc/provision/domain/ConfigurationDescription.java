@@ -123,9 +123,10 @@ public class ConfigurationDescription {
     @AllArgsConstructor
     @NoArgsConstructor
     public static class TimeRange {
-        @JsonFormat(pattern = "yyyy-MM-dd HHmmss")
+        @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
         LocalDateTime startDate;
-        @JsonFormat(pattern = "yyyy-MM-dd HHmmss")
+
+        @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
         LocalDateTime endDate;
     }
 }

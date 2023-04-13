@@ -22,17 +22,11 @@
           <el-input v-model="featureConfig.description" autocomplete="off" />
         </el-form-item>
         <el-form-item label="配置内容" prop="data">
-          <el-input
-            v-model="featureConfig.data"
-            autocomplete="off"
-            type="textarea"
-          />
-        </el-form-item>
-        <el-form-item label="埋点数据" prop="trackingData">
-          <el-input
-            v-model="featureConfig.trackingData"
-            autocomplete="off"
-            type="textarea"
+          <FeatureConfigData
+            :key="featureConfig.id"
+            :featureFlag="featureFlag"
+            :item="featureConfig.data"
+            @change="featureConfig.data = $event"
           />
         </el-form-item>
         <el-form-item label="生效时间" prop="timeRange">
@@ -40,15 +34,29 @@
             v-model="featureConfig.timeRange.startDate"
             autocomplete="off"
             placeholder="Select start date and time"
+            value-format="YYYY-MM-DD HH:mm:ss"
             type="datetime"
           />
           -
           <el-date-picker
             v-model="featureConfig.timeRange.endDate"
             autocomplete="off"
+            value-format="YYYY-MM-DD HH:mm:ss"
             placeholder="Select end date and time"
             type="datetime"
           />
+        </el-form-item>
+        <el-form-item label="埋点数据" prop="trackingData">
+          <tracking-data-item
+            v-for="(item, index) in trackingData"
+            :key="item.index"
+            :item="item"
+            :index="index"
+            @deleteItem="deleteTrackingData(index)"
+          />
+          <el-button type="primary" @click="addTrackingData"
+            ><el-icon><Plus /></el-icon
+          ></el-button>
         </el-form-item>
         <el-form-item>
           <el-button type="default" @click="resetForm()">重置</el-button>
@@ -62,25 +70,39 @@
 <script setup lang="ts">
 import { onBeforeMount, ref } from "vue";
 import { useRoute, useRouter } from "vue-router";
-import { ElForm, ElFormItem, ElInput, ElButton, ElMessage } from "element-plus";
+import { ElButton, ElForm, ElFormItem, ElInput, ElMessage } from "element-plus";
 import { FeatureConfig, FeatureConfigs } from "../../domain/FeatureConfigs";
+import { FeatureFlag, getDefaultValue } from "../../domain/FeatureFlags";
+import TrackingDataItem from "../../components/TrackingDataItem.vue";
+import FeatureConfigData from "../../components/FeatureConfigData.vue";
 
 const route = useRoute();
 const router = useRouter();
 const featureConfigs = new FeatureConfigs();
 const featureConfig = ref({} as FeatureConfig);
+const featureFlag = ref({} as FeatureFlag);
 
 const title = ref("Feature Config");
 const formType = ref("add");
 const originalFeatureConfig = ref({} as FeatureConfig);
 const featureKey = ref("");
 const id = ref("");
+const trackingData = ref([] as any[]);
+let trackingDataIndex = 0;
 onBeforeMount(async () => {
   title.value =
     (route.query.type == "edit" ? "编辑" : "新增") + "Feature Config";
   formType.value = route.query.type == "edit" ? "edit" : "add";
   featureKey.value = "" + route.query.featureKey;
-  featureConfig.value = { timeRange: {} } as FeatureConfig;
+
+  const featureFlagString = decodeURI(route.query.featureFlag as string);
+  featureFlag.value = JSON.parse(featureFlagString) as FeatureFlag;
+
+  featureConfig.value = {
+    timeRange: {},
+    trackingData: [],
+    data: getDefaultValue(featureFlag.value),
+  } as FeatureConfig;
 
   if (route.query.id) {
     const res = await featureConfigs.fetchById(route.query.id.toString());
@@ -88,6 +110,16 @@ onBeforeMount(async () => {
     featureConfig.value = res;
     originalFeatureConfig.value = res;
   }
+
+  trackingData.value = featureConfig.value.trackingData
+    ? Object.keys(featureConfig.value.trackingData).map((key) => {
+        return {
+          index: trackingDataIndex++,
+          key: key,
+          value: featureConfig.value.trackingData[key],
+        };
+      })
+    : [];
 });
 
 const formRules = {
@@ -97,13 +129,29 @@ const formRules = {
 
 const form = ref<ElForm>(null);
 
+const deleteTrackingData = (index: number) => {
+  trackingData.value.splice(index, 1);
+};
+const addTrackingData = () => {
+  trackingData.value.push({
+    index: trackingDataIndex++,
+    key: "",
+    value: "",
+  });
+};
+
 const submitForm = async () => {
   form?.value?.validate(async (valid: boolean) => {
     if (valid) {
-      console.log("Form is valid");
       try {
-        console.log(featureKey.value);
         featureConfig.value.type = featureKey.value;
+        featureConfig.value.trackingData = trackingData.value.reduce(
+          (acc, cur) => {
+            acc[cur.key] = cur.value;
+            return acc;
+          },
+          {} as any
+        );
         if (formType.value.toLowerCase() == "add") {
           await featureConfigs.create(featureConfig.value);
         } else {

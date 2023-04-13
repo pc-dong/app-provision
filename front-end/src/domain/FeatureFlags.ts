@@ -13,13 +13,26 @@ export interface PageResponse<T> {
   content: T[];
 }
 
-interface FeatureFlagDescription {
+export interface FeatureFlagDescription {
   name: string;
   description: string;
   dataType: string;
   defaultValue?: unknown | string | object;
   status: string;
-  template?: any;
+  template?: FeatureFlagTemplate;
+}
+
+export interface FeatureFlagTemplate {
+  items: FeatureFlagTemplateItem[];
+}
+
+export interface FeatureFlagTemplateItem {
+  key: string;
+  name: string;
+  description: string;
+  dataType: TemplateDataType;
+  defaultValue?: unknown | string | object;
+  subItems?: FeatureFlagTemplateItem[];
 }
 
 export enum DataType {
@@ -39,6 +52,64 @@ export enum TemplateDataType {
   LIST_NUMBER = "LIST_NUMBER",
   LIST_OBJECT = "LIST_OBJECT",
 }
+
+export const getDefaultValue = (featureFlag: FeatureFlag): any => {
+  if (featureFlag.description.dataType === DataType.BOOLEAN) {
+    return featureFlag.description.defaultValue == "true";
+  } else if (featureFlag.description.dataType === DataType.NUMBER) {
+    return Number(featureFlag.description.defaultValue) || 0;
+  } else if (featureFlag.description.dataType === DataType.STRING) {
+    return featureFlag.description.defaultValue || "";
+  } else if (featureFlag.description.dataType === DataType.JSON_STRING) {
+    return featureFlag.description.defaultValue &&
+      isJSONString(featureFlag.description.defaultValue as string)
+      ? featureFlag.description.defaultValue
+      : "{}";
+  } else {
+    // JSON
+    return getJSONDefaultValue(featureFlag.description?.template?.items || []);
+  }
+
+  return featureFlag.description.defaultValue || null;
+};
+
+const isJSONString = (str: string): boolean => {
+  try {
+    JSON.parse(str);
+    return true;
+  } catch (e) {
+    return false;
+  }
+};
+
+const getJSONDefaultValue = (items: FeatureFlagTemplateItem[]): any => {
+  if (!items || items.length === 0) {
+    return {};
+  }
+
+  const result = {} as any;
+  items.forEach((item) => {
+    if (item.dataType === TemplateDataType.OBJECT) {
+      result[item.key] = getJSONDefaultValue(item.subItems || []);
+    } else if (item.dataType === TemplateDataType.LIST_OBJECT) {
+      result[item.key] = [getJSONDefaultValue(item.subItems || [])];
+    } else if (item.dataType === TemplateDataType.LIST_STRING) {
+      result[item.key] = [""];
+    } else if (item.dataType === TemplateDataType.LIST_NUMBER) {
+      result[item.key] = [0];
+    } else if (item.dataType === TemplateDataType.BOOLEAN) {
+      result[item.key] = item.defaultValue == "true";
+    } else if (item.dataType === TemplateDataType.STRING) {
+      result[item.key] = item.defaultValue || "";
+    } else if (item.dataType === TemplateDataType.NUMBER) {
+      result[item.key] = item.defaultValue || 0;
+    } else {
+      result[item.key] = item.defaultValue || "";
+    }
+  });
+
+  return result;
+};
 
 export class FeatureFlags {
   constructor(private readonly baseUrl: string = "/api") {}

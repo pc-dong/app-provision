@@ -111,7 +111,6 @@ const searchForm = reactive({
 const tableData = ref([] as FeatureFlag[]);
 
 const deleteData = (id: string) => {
-  console.log("deleteUser");
   featureFlags
     .delete(id)
     .then(() => {
@@ -125,7 +124,6 @@ const deleteData = (id: string) => {
 };
 
 const searchData = () => {
-  console.log("searchData");
   featureFlags
     .fetchAll(
       searchForm.page > 1 ? searchForm.page - 1 : 0,
@@ -144,7 +142,6 @@ const searchData = () => {
 };
 
 const publish = (featureKey: string) => {
-  console.log("publish");
   featureFlags
     .publish(featureKey)
     .then(() => {
@@ -158,7 +155,6 @@ const publish = (featureKey: string) => {
 };
 
 const disable = (featureKey: string) => {
-  console.log("publish");
   featureFlags
     .disable(featureKey)
     .then(() => {
@@ -172,12 +168,10 @@ const disable = (featureKey: string) => {
 };
 
 const handleSizeChange = () => {
-  console.log("handleSizeChange");
   searchData();
 };
 
 const handleCurrentChange = () => {
-  console.log("handleCurrentChange");
   searchData();
 };
 

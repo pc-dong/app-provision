@@ -184,7 +184,6 @@ const formRules = {
 
 let tempItems = [] as any[];
 const handleDataTypeChange = (value: string) => {
-  console.log(tempItems);
   if (value === "JSON") {
     if (tempItems.length == 0) {
       tempItems.push({
@@ -219,8 +218,6 @@ const addTemplateItem = () => {
 };
 
 const deleteTemplateItem = (index: number) => {
-  console.log(JSON.stringify(featureFlag.value.description.template.items));
-  console.log(index);
   featureFlag.value.description.template.items.splice(index, 1);
 };
 
@@ -249,7 +246,6 @@ const validateTemplateItems = (): boolean => {
     return validateTemplateFail("Please add at least one item");
   }
   return validateSubItems(items, "");
-  return true;
 };
 
 const validateSubItems = (subItems: any[], parentKey: string): boolean => {
@@ -293,7 +289,6 @@ const validateSubItems = (subItems: any[], parentKey: string): boolean => {
 const submitForm = async () => {
   form.value.validate(async (valid) => {
     if (valid && validateTemplateItems()) {
-      console.log("Form is valid");
       try {
         if (formType.value.toLowerCase() == "add") {
           await featureFlags.create(featureFlag.value);

@@ -52,8 +52,9 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, ref } from "vue";
+import { ref } from "vue";
 import { TemplateDataType } from "../domain/FeatureFlags";
+
 const props = defineProps({
   index: {
     type: Number,
@@ -100,8 +101,7 @@ const shouldShowSubItems = () => {
   return ["OBJECT", "LIST_OBJECT"].includes(item.value.dataType);
 };
 
-const handleDataTypeChange = (value: string) => {
-  console.log(tempItems);
+const handleDataTypeChange = () => {
   if (shouldShowSubItems()) {
     if (tempItems.length == 0) {
       tempItems.push({
@@ -119,17 +119,12 @@ const handleDataTypeChange = (value: string) => {
     item.value.subItems = [];
   }
 };
-
-onMounted(() => {
-  // console.log("item:" + item.value);
-  // keyInput.value.foucs();
-});
 </script>
 
 <style scoped>
 div.container {
-  margin: 0px;
-  padding: 0px;
+  margin: 0;
+  padding: 0;
 }
 
 .el-form-item {
@@ -137,8 +132,8 @@ div.container {
 }
 
 .el-card {
-  margin: 0px;
-  padding: 0px;
+  margin: 0;
+  padding: 0;
 }
 
 .el-form-item__content {

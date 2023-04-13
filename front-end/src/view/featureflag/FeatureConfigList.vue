@@ -4,7 +4,10 @@
       <el-card-header style="padding: 5px">
         <div class="card-header">
           <span class="title"> FeatureKey: {{ type }}</span>
-          <el-button size="mini" style="float: right" @click="router.go(-1)"
+          <el-button
+            size="mini"
+            style="float: right"
+            @click="router.push({ path: '/feature-flag' })"
             >返回
           </el-button>
         </div>
@@ -27,7 +30,11 @@
           () =>
             router.push({
               path: '/feature-config/edit',
-              query: { type: 'add', featureKey: type },
+              query: {
+                type: 'add',
+                featureKey: type,
+                featureFlag: encodeURI(JSON.stringify(featureFlag)),
+              },
             })
         "
       >
@@ -67,7 +74,12 @@
                 () =>
                   router.push({
                     path: '/feature-config/edit',
-                    query: { featureKey: type, type: 'edit', id: scope.row.id },
+                    query: {
+                      featureKey: type,
+                      type: 'edit',
+                      id: scope.row.id,
+                      featureFlag: encodeURI(JSON.stringify(featureFlag)),
+                    },
                   })
               "
             >
@@ -98,13 +110,17 @@ import { useRoute } from "vue-router";
 
 import { FeatureConfig, FeatureConfigs } from "../../domain/FeatureConfigs";
 import { ElMessage } from "element-plus";
+import { FeatureFlags } from "../../domain/FeatureFlags";
 
 const route = useRoute();
+const featureFlag = ref();
+const featureFlags = new FeatureFlags();
 
 const type = ref();
-onBeforeMount(() => {
-  console.log("onBeforeMount");
+onBeforeMount(async () => {
   type.value = route.query.featureKey;
+  const flag = await featureFlags.fetch(type.value);
+  featureFlag.value = flag;
 });
 
 const router = useRouter();
@@ -121,7 +137,6 @@ const searchForm = reactive({
 const tableData = ref([] as FeatureConfig[]);
 
 const deleteData = (id: string) => {
-  console.log("deleteUser");
   featureConfigs
     .delete(id)
     .then(() => {
@@ -135,7 +150,6 @@ const deleteData = (id: string) => {
 };
 
 const searchData = () => {
-  console.log("searchData");
   featureConfigs
     .fetchAll(
       type.value,
@@ -155,7 +169,6 @@ const searchData = () => {
 };
 
 const publish = (featureKey: string) => {
-  console.log("publish");
   featureConfigs
     .publish(featureKey)
     .then(() => {
@@ -169,7 +182,6 @@ const publish = (featureKey: string) => {
 };
 
 const disable = (featureKey: string) => {
-  console.log("publish");
   featureConfigs
     .disable(featureKey)
     .then(() => {
@@ -183,12 +195,10 @@ const disable = (featureKey: string) => {
 };
 
 const handleSizeChange = () => {
-  console.log("handleSizeChange");
   searchData();
 };
 
 const handleCurrentChange = () => {
-  console.log("handleCurrentChange");
   searchData();
 };
 
