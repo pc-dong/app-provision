@@ -82,7 +82,7 @@ const isJSONString = (str: string): boolean => {
   }
 };
 
-const getJSONDefaultValue = (items: FeatureFlagTemplateItem[]): any => {
+export const getJSONDefaultValue = (items: FeatureFlagTemplateItem[]): any => {
   if (!items || items.length === 0) {
     return {};
   }

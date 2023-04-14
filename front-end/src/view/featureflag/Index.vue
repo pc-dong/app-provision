@@ -22,9 +22,11 @@
         <el-icon><Plus /></el-icon>新增
       </el-button>
       <el-table :data="tableData" border style="width: 100%; margin-top: 50px">
-        <el-table-column label="Feature Key" width="180">
+        <el-table-column label="Feature Key" width="200">
           <template #default="scope">
             <el-button
+              type="primary"
+              link
               @click="
                 router.push({
                   path: '/feature-config',
@@ -36,8 +38,13 @@
             </el-button>
           </template>
         </el-table-column>
-        <el-table-column prop="description.name" label="名称" width="180" />
-        <el-table-column prop="description.status" label="状态" width="180" />
+        <el-table-column prop="description.name" label="名称" width="200" />
+        <el-table-column
+          prop="description.description"
+          label="描述"
+          width="300"
+        />
+        <el-table-column prop="description.status" label="状态" width="240" />
         <el-table-column label="操作">
           <template #default="scope">
             <el-button

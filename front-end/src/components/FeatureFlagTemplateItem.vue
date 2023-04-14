@@ -1,53 +1,54 @@
 <template>
-  <div class="container">
-    <el-card>
-      <el-form-item label="Key" prop="key">
-        <el-input ref="keyInput" v-model="item.key" />
-      </el-form-item>
-      <el-form-item label="名称" prop="name">
-        <el-input v-model="item.name" />
-      </el-form-item>
-      <el-form-item label="描述" prop="description">
-        <el-input v-model="item.description" />
-      </el-form-item>
-      <el-form-item label="数据类型" prop="dataType">
-        <el-select v-model="item.dataType" @change="handleDataTypeChange">
-          <el-option
-            v-for="item in Object.keys(TemplateDataType)"
-            :key="item"
-            :label="item"
-            :value="item"
+  <div class="template-object">
+    <el-row>
+      <el-col :span="23">
+        <el-form-item label="Key" prop="key">
+          <el-input ref="keyInput" v-model="item.key" />
+        </el-form-item>
+        <el-form-item label="名称" prop="name">
+          <el-input v-model="item.name" />
+        </el-form-item>
+        <el-form-item label="描述" prop="description">
+          <el-input v-model="item.description" />
+        </el-form-item>
+        <el-form-item label="数据类型" prop="dataType">
+          <el-select v-model="item.dataType" @change="handleDataTypeChange">
+            <el-option
+              v-for="item in Object.keys(TemplateDataType)"
+              :key="item"
+              :label="item"
+              :value="item"
+            />
+          </el-select>
+        </el-form-item>
+        <el-form-item label="Default Value" prop="defaultValue">
+          <el-input v-model="item.defaultValue" />
+        </el-form-item>
+        <el-form-item> </el-form-item>
+
+        <el-form-item
+          v-if="shouldShowSubItems()"
+          label="Sub Items"
+          prop="subItems"
+        >
+          <feature-flag-template-item
+            v-for="(subItem, ind) in item.subItems"
+            :key="subItem.index"
+            :index="ind"
+            :item="subItem"
+            @deleteItem="deleteSubItem"
           />
-        </el-select>
-      </el-form-item>
-      <el-form-item label="Default Value" prop="defaultValue">
-        <el-input v-model="item.defaultValue" />
-      </el-form-item>
-      <el-form-item>
+        </el-form-item>
+      </el-col>
+      <el-col :span="1">
         <el-button type="warning" @click="deleteItem()"
           ><el-icon> <Delete /> </el-icon
         ></el-button>
-        <el-button
-          v-if="shouldShowSubItems()"
-          type="primary"
-          @click="addSubItems"
-          ><el-icon> <Plus /> </el-icon
-        ></el-button>
-      </el-form-item>
-      <el-form-item
-        v-if="shouldShowSubItems()"
-        label="Sub Items"
-        prop="subItems"
-      >
-        <feature-flag-template-item
-          v-for="(subItem, ind) in item.subItems"
-          :key="subItem.index"
-          :index="ind"
-          :item="subItem"
-          @deleteItem="deleteSubItem"
-        />
-      </el-form-item>
-    </el-card>
+      </el-col>
+    </el-row>
+    <el-button v-if="shouldShowSubItems()" type="primary" @click="addSubItems"
+      ><el-icon> <Plus /> </el-icon
+    ></el-button>
   </div>
 </template>
 
@@ -123,8 +124,17 @@ const handleDataTypeChange = () => {
 
 <style scoped>
 div.container {
-  margin: 0;
-  padding: 0;
+  padding: 5px;
+  background-color: #fafcff;
+  width: 100%;
+}
+
+.template-object {
+  background-color: #ebedf0;
+  margin-bottom: 10px;
+  padding: 10px;
+  /*边框为实线*/
+  border: 2px solid #dcdfe6;
 }
 
 .el-form-item {

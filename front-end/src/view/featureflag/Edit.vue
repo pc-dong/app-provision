@@ -59,9 +59,7 @@
           label="Config Template"
           prop="description.template"
         >
-          <!--          <el-collapse>-->
-          <!--            <el-collapse-item>-->
-          <el-row :gutter="10">
+          <div class="template-list">
             <feature-flag-template-item
               v-for="(item, index) in featureFlag.description.template.items"
               :key="item.index"
@@ -69,14 +67,10 @@
               :item="item"
               @deleteItem="deleteTemplateItem"
             />
-            <el-col :span="4" :offset="20">
-              <el-button type="primary" @click="addTemplateItem"
-                >添加Item
-              </el-button>
-            </el-col>
-          </el-row>
-          <!--            </el-collapse-item>-->
-          <!--          </el-collapse>-->
+            <el-button type="primary" @click="addTemplateItem"
+              ><el-icon><Plus /></el-icon>
+            </el-button>
+          </div>
         </el-form-item>
 
         <el-form-item>
@@ -137,7 +131,7 @@ const formRules = {
   ],
   "description.defaultValue": [
     {
-      required: true,
+      required: false,
       message: "Please enter default value",
       trigger: "submit",
     },
@@ -161,6 +155,9 @@ const formRules = {
             }
             break;
           case "JSON_STRING":
+            if (!value) {
+              break;
+            }
             try {
               JSON.parse(value);
             } catch (e) {
@@ -318,4 +315,11 @@ const resetForm = () => {
 };
 </script>
 
-<style scoped></style>
+<style scoped>
+.template-list {
+  background-color: #f5f7fa;
+  padding: 10px;
+  margin-bottom: 10px;
+  width: 100%;
+}
+</style>

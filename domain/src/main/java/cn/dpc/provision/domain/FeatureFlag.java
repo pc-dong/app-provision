@@ -43,7 +43,7 @@ public class FeatureFlag {
                                                 Status status,
                                                 FeatureConfigTemplate template) {
         public enum DataType {
-            BOOLEAN, STRING, NUMBER, JSON
+            BOOLEAN, STRING, NUMBER, JSON_STRING, JSON
         }
 
         public enum Status {

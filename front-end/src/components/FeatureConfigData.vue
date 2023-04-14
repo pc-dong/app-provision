@@ -1,10 +1,11 @@
 <template>
-  <div>
+  <div class="data-container">
     <template v-if="featureFlag?.description.dataType === DataType.BOOLEAN">
-      <el-switch v-model="item" @change="updateData" />
+      <el-switch style="display: flex" v-model="item" @change="updateData" />
     </template>
-    <template v-if="featureFlag?.description.dataType === DataType.NUMBER">
+    <template v-else-if="featureFlag?.description.dataType === DataType.NUMBER">
       <el-input-number
+        style="display: block"
         v-model="item"
         :precision="2"
         :step="0.1"
@@ -21,15 +22,13 @@
       <el-input v-model="item" type="textarea" @change="updateData" />
     </template>
     <template v-else>
-      <el-card>
-        <feature-config-template-data
-          v-for="it in featureFlag.description.template?.items || []"
-          :key="'data' + it.key"
-          :templateItem="it"
-          :item="item[it.key]"
-          @change="updateSubItem"
-        />
-      </el-card>
+      <feature-config-template-data
+        v-for="it in featureFlag.description.template?.items || []"
+        :key="'data' + it.key"
+        :templateItem="it"
+        :item="item[it.key]"
+        @change="updateSubItem"
+      />
     </template>
   </div>
 </template>
@@ -63,4 +62,10 @@ const updateSubItem = (key: string, value: any) => {
 };
 </script>
 
-<style scoped></style>
+<style scoped>
+.data-container {
+  padding: 20px;
+  background-color: #fafcff;
+  width: 100%;
+}
+</style>

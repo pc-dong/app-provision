@@ -177,7 +177,6 @@ const resetForm = () => {
   if (formType.value.toLowerCase() == "add") {
     form.value.resetFields();
   } else {
-    form.value.resetFields();
     featureConfig.value = originalFeatureConfig.value;
   }
 };
