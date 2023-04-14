@@ -63,8 +63,6 @@ public class FeatureFlagDB {
         this.setDescription(new FeatureFlagDescription(
                 this.getDescription().name(),
                 this.getDescription().description(),
-                this.getDescription().dataType(),
-                this.getDescription().defaultValue(),
                 status,
                 this.getDescription().template()));
         return this;

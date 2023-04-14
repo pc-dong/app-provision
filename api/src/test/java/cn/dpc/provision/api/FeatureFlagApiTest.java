@@ -16,9 +16,6 @@ import org.springframework.test.web.reactive.server.WebTestClient;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
-import java.util.List;
-
-import static cn.dpc.provision.domain.FeatureFlag.FeatureFlagDescription.DataType.BOOLEAN;
 import static cn.dpc.provision.domain.FeatureFlag.FeatureFlagDescription.Status.PUBLISHED;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -49,7 +46,7 @@ class FeatureFlagApiTest {
                 .expectBody(FeatureFlagResponse.class)
                 .value(response -> {
                     assertTrue(response.getId().length() > 0);
-                    assertEquals(response.getDescription().status(), PUBLISHED);
+                    assertEquals(response.getStatus(), PUBLISHED);
                 });
     }
 
@@ -94,7 +91,7 @@ class FeatureFlagApiTest {
                 .hasSize(1)
                 .value(response -> {
                     assertTrue(response.get(0).getId().length() > 0);
-                    assertEquals(response.get(0).getDescription().status(), PUBLISHED);
+                    assertEquals(response.get(0).getStatus(), PUBLISHED);
                 });
     }
 
@@ -135,23 +132,23 @@ class FeatureFlagApiTest {
     private FeatureFlagRequest generateFeatureRequest(FeatureFlag featureFlag) {
         FeatureFlagRequest request =  new FeatureFlagRequest();
         request.setFeatureKey(featureFlag.getFeatureKey());
-        request.setDescription(featureFlag.getDescription());
+        request.setName(featureFlag.getDescription().name());
+        request.setDescription(featureFlag.getDescription().description());
+        request.setTemplate(featureFlag.getDescription().template());
+
         return request;
     }
 
     private FeatureFlag generateFeatureFlag(String featureKey) {
         return new FeatureFlag(featureKey, new FeatureFlag.FeatureFlagDescription("name",
                 "description",
-                BOOLEAN,
-                "true",
                 PUBLISHED,
-                new FeatureFlag.FeatureConfigTemplate(List.of(
-                        new FeatureFlag.FeatureConfigTemplate.Item("key",
+                        new FeatureFlag.FeatureConfigTemplate("key",
                                 "name",
                                 "description",
-                                FeatureFlag.FeatureConfigTemplate.DataType.BOOLEAN,
+                                FeatureFlag.DataType.BOOLEAN,
                                 "false",
-                                null)))
+                                null)
         ));
     }
 

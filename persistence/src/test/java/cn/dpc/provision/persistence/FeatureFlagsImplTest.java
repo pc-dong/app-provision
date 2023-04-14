@@ -16,8 +16,6 @@ import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
 import java.time.Duration;
-import java.util.LinkedHashMap;
-import java.util.List;
 
 import static cn.dpc.provision.domain.FeatureFlag.FeatureFlagDescription.Status.*;
 
@@ -260,11 +258,8 @@ class FeatureFlagsImplTest {
     private static FeatureFlag getFeatureFlag(String featureKey) {
         return new FeatureFlag(featureKey, new FeatureFlag.FeatureFlagDescription("feature Name",
                 "description",
-                FeatureFlag.FeatureFlagDescription.DataType.JSON,
-                new LinkedHashMap<>(),
                 DRAFT,
-                new FeatureFlag.FeatureConfigTemplate(List.of(
-                        new FeatureFlag.FeatureConfigTemplate.Item("key", "name", "description", FeatureFlag.FeatureConfigTemplate.DataType.STRING,
-                                "defaultValue", null)))));
+                new FeatureFlag.FeatureConfigTemplate("key", "name", "description", FeatureFlag.DataType.STRING,
+                         "defaultValue", null)));
     }
 }

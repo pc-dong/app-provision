@@ -3,7 +3,10 @@ import http from "../utils/http/http";
 export interface FeatureFlag {
   id?: string;
   featureKey: string;
-  description: FeatureFlagDescription;
+  name: string;
+  description?: string;
+  status: string;
+  template: FeatureFlagTemplate;
 }
 
 export interface PageResponse<T> {
@@ -13,34 +16,13 @@ export interface PageResponse<T> {
   content: T[];
 }
 
-export interface FeatureFlagDescription {
-  name: string;
-  description: string;
-  dataType: string;
-  defaultValue?: unknown | string | object;
-  status: string;
-  template?: FeatureFlagTemplate;
-}
-
 export interface FeatureFlagTemplate {
-  items: FeatureFlagTemplateItem[];
-}
-
-export interface FeatureFlagTemplateItem {
-  key: string;
-  name: string;
-  description: string;
+  key?: string;
+  name?: string;
+  description?: string;
   dataType: TemplateDataType;
   defaultValue?: unknown | string | object;
-  subItems?: FeatureFlagTemplateItem[];
-}
-
-export enum DataType {
-  BOOLEAN = "BOOLEAN",
-  STRING = "STRING",
-  NUMBER = "NUMBER",
-  JSON_STRING = "JSON_STRING",
-  JSON = "JSON",
+  items?: FeatureFlagTemplate[];
 }
 
 export enum TemplateDataType {
@@ -48,67 +30,37 @@ export enum TemplateDataType {
   STRING = "STRING",
   NUMBER = "NUMBER",
   OBJECT = "OBJECT",
-  LIST_STRING = "LIST_STRING",
-  LIST_NUMBER = "LIST_NUMBER",
-  LIST_OBJECT = "LIST_OBJECT",
+  ARRAY = "ARRAY",
 }
 
 export const getDefaultValue = (featureFlag: FeatureFlag): any => {
-  if (featureFlag.description.dataType === DataType.BOOLEAN) {
-    return featureFlag.description.defaultValue == "true";
-  } else if (featureFlag.description.dataType === DataType.NUMBER) {
-    return Number(featureFlag.description.defaultValue) || 0;
-  } else if (featureFlag.description.dataType === DataType.STRING) {
-    return featureFlag.description.defaultValue || "";
-  } else if (featureFlag.description.dataType === DataType.JSON_STRING) {
-    return featureFlag.description.defaultValue &&
-      isJSONString(featureFlag.description.defaultValue as string)
-      ? featureFlag.description.defaultValue
-      : "{}";
-  } else {
-    // JSON
-    return getJSONDefaultValue(featureFlag.description?.template?.items || []);
-  }
-
-  return featureFlag.description.defaultValue || null;
+  return getTemplateDefaultValue(featureFlag.template);
 };
 
-const isJSONString = (str: string): boolean => {
-  try {
-    JSON.parse(str);
-    return true;
-  } catch (e) {
-    return false;
-  }
-};
-
-export const getJSONDefaultValue = (items: FeatureFlagTemplateItem[]): any => {
-  if (!items || items.length === 0) {
-    return {};
-  }
-
-  const result = {} as any;
-  items.forEach((item) => {
-    if (item.dataType === TemplateDataType.OBJECT) {
-      result[item.key] = getJSONDefaultValue(item.subItems || []);
-    } else if (item.dataType === TemplateDataType.LIST_OBJECT) {
-      result[item.key] = [getJSONDefaultValue(item.subItems || [])];
-    } else if (item.dataType === TemplateDataType.LIST_STRING) {
-      result[item.key] = [""];
-    } else if (item.dataType === TemplateDataType.LIST_NUMBER) {
-      result[item.key] = [0];
-    } else if (item.dataType === TemplateDataType.BOOLEAN) {
-      result[item.key] = item.defaultValue == "true";
-    } else if (item.dataType === TemplateDataType.STRING) {
-      result[item.key] = item.defaultValue || "";
-    } else if (item.dataType === TemplateDataType.NUMBER) {
-      result[item.key] = item.defaultValue || 0;
-    } else {
-      result[item.key] = item.defaultValue || "";
+export const getTemplateDefaultValue = (
+  template: FeatureFlagTemplate
+): any | any[] => {
+  if (template.dataType === TemplateDataType.OBJECT) {
+    const result = {} as any;
+    (template.items || []).forEach((item: FeatureFlagTemplate) => {
+      result[item.key as string] = getTemplateDefaultValue(item);
+    });
+    return result;
+  } else if (template.dataType === TemplateDataType.ARRAY) {
+    const result = [] as any[];
+    if (template.items && template.items.length > 0) {
+      result.push(getTemplateDefaultValue(template.items[0]));
     }
-  });
+    return result;
+  } else if (template.dataType === TemplateDataType.BOOLEAN) {
+    return template.defaultValue == "true" || template.defaultValue == true;
+  } else if (template.dataType === TemplateDataType.STRING) {
+    return template.defaultValue || "";
+  } else if (template.dataType === TemplateDataType.NUMBER) {
+    return Number(template.defaultValue) || 0;
+  }
 
-  return result;
+  return template.defaultValue || "";
 };
 
 export class FeatureFlags {
@@ -142,10 +94,7 @@ export class FeatureFlags {
 
   update(featureFlag: FeatureFlag): Promise<void> {
     return http
-      .put(
-        this.getUrl(`/feature-flags/${featureFlag.featureKey}`),
-        featureFlag.description
-      )
+      .put(this.getUrl(`/feature-flags/${featureFlag.featureKey}`), featureFlag)
       .then();
   }
 

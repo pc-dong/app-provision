@@ -2,16 +2,26 @@
   <div class="template-object">
     <el-row>
       <el-col :span="23">
-        <el-form-item label="Key" prop="key">
-          <el-input ref="keyInput" v-model="item.key" />
+        <el-form-item
+          v-if="shouldShowKey()"
+          label="Key"
+          prop="key"
+          :rules="keyRules"
+        >
+          <el-input ref="keyInput" v-model="item.key" @change="updateItem" />
         </el-form-item>
-        <el-form-item label="名称" prop="name">
-          <el-input v-model="item.name" />
+        <el-form-item
+          v-if="shouldShowKey()"
+          label="名称"
+          :prop="name"
+          :rules="nameRules"
+        >
+          <el-input v-model="item.name" @change="updateItem" />
         </el-form-item>
-        <el-form-item label="描述" prop="description">
-          <el-input v-model="item.description" />
+        <el-form-item v-if="shouldShowKey()" label="描述" prop="description">
+          <el-input v-model="item.description" @change="updateItem" />
         </el-form-item>
-        <el-form-item label="数据类型" prop="dataType">
+        <el-form-item label="数据类型" prop="dataType" :rules="dataTypeRules">
           <el-select v-model="item.dataType" @change="handleDataTypeChange">
             <el-option
               v-for="item in Object.keys(TemplateDataType)"
@@ -21,10 +31,15 @@
             />
           </el-select>
         </el-form-item>
-        <el-form-item label="Default Value" prop="defaultValue">
+        <el-form-item
+          v-if="shouldShowDefaultValue()"
+          label="Default Value"
+          prop="defaultValue"
+          :rules="defaultValueRules"
+        >
           <el-input v-model="item.defaultValue" />
         </el-form-item>
-        <el-form-item> </el-form-item>
+        <el-form-item></el-form-item>
 
         <el-form-item
           v-if="shouldShowSubItems()"
@@ -32,29 +47,42 @@
           prop="subItems"
         >
           <feature-flag-template-item
-            v-for="(subItem, ind) in item.subItems"
-            :key="subItem.index"
+            v-for="(subItem, ind) in item.items"
+            :key="subItem"
             :index="ind"
             :item="subItem"
+            :parentItem="item"
+            @change="
+              item.items[ind] = $event;
+              updateItem();
+            "
             @deleteItem="deleteSubItem"
           />
         </el-form-item>
       </el-col>
       <el-col :span="1">
-        <el-button type="warning" @click="deleteItem()"
-          ><el-icon> <Delete /> </el-icon
-        ></el-button>
+        <el-button
+          v-if="shouldShowDeleteButton()"
+          type="warning"
+          @click="deleteItem()"
+        >
+          <el-icon>
+            <Delete />
+          </el-icon>
+        </el-button>
       </el-col>
     </el-row>
-    <el-button v-if="shouldShowSubItems()" type="primary" @click="addSubItems"
-      ><el-icon> <Plus /> </el-icon
-    ></el-button>
+    <el-button v-if="shouldShowAddButton()" type="primary" @click="addSubItems">
+      <el-icon>
+        <Plus />
+      </el-icon>
+    </el-button>
   </div>
 </template>
 
 <script setup lang="ts">
 import { ref } from "vue";
-import { TemplateDataType } from "../domain/FeatureFlags";
+import { FeatureFlagTemplate, TemplateDataType } from "../domain/FeatureFlags";
 
 const props = defineProps({
   index: {
@@ -65,42 +93,79 @@ const props = defineProps({
     type: Object,
     required: true,
   },
+  parentItem: {
+    type: Object,
+    required: false,
+  },
 });
 
-const emit = defineEmits(["deleteItem"]);
+const emit = defineEmits(["deleteItem", "change"]);
 
-const item = ref(props.item);
+const updateItem = () => {
+  emit("change", item.value);
+};
+
+const item = ref(props.item as FeatureFlagTemplate);
+const parentItem = ref(props.parentItem);
 
 const deleteItem = () => {
   emit("deleteItem", props.index);
 };
 
+const shouldShowKey = () => {
+  return (
+    parentItem.value && parentItem.value.dataType == TemplateDataType.OBJECT
+  );
+};
+
+const shouldShowDefaultValue = () => {
+  return [
+    TemplateDataType.STRING,
+    TemplateDataType.NUMBER,
+    TemplateDataType.BOOLEAN,
+  ].includes(item.value.dataType);
+};
+
+const shouldShowDeleteButton = () => {
+  return (
+    parentItem.value &&
+    parentItem.value.dataType == TemplateDataType.OBJECT &&
+    parentItem.value.items.length > 1
+  );
+};
+
+const shouldShowSubItems = () => {
+  return [TemplateDataType.OBJECT, TemplateDataType.ARRAY].includes(
+    item.value.dataType
+  );
+};
+
+const shouldShowAddButton = () => {
+  return item.value && item.value.dataType == TemplateDataType.OBJECT;
+};
+
 const deleteSubItem = (index: number) => {
-  item.value.subItems.splice(index, 1);
+  item.value.items = item.value.items || [];
+  item.value.items.splice(index, 1);
+  updateItem();
 };
 
 let templateItemIndex = 0;
 
 const addSubItems = () => {
-  item.value.subItems = item.value.subItems || [];
-  item.value.subItems.push({
-    index: templateItemIndex++,
+  item.value.items?.push({
     key: "",
     name: "",
     description: "",
-    dataType: "STRING",
-    defaultValue: "",
-    subItems: [],
+    dataType: TemplateDataType.BOOLEAN,
+    defaultValue: "false",
+    items: [],
   });
 };
 
 const keyInput = ref();
 
 let tempItems = [] as any[];
-
-const shouldShowSubItems = () => {
-  return ["OBJECT", "LIST_OBJECT"].includes(item.value.dataType);
-};
 
 const handleDataTypeChange = () => {
   if (shouldShowSubItems()) {
@@ -114,12 +179,105 @@ const handleDataTypeChange = () => {
         defaultValue: "",
       });
     }
-    item.value.subItems = tempItems;
+    item.value.items = tempItems;
   } else {
-    tempItems = item.value.subItems || [];
-    item.value.subItems = [];
+    tempItems = item.value.items || [];
+    item.value.items = [];
   }
+
+  updateItem();
 };
+
+const keyRules = [
+  {
+    validator: () => {
+      if (
+        !(
+          parentItem.value &&
+          parentItem.value.dataType == TemplateDataType.OBJECT
+        )
+      ) {
+        return Promise.resolve();
+      }
+
+      if (!item.value?.key) {
+        return Promise.reject("请输入Key");
+      }
+
+      if (!/^[a-zA-Z][a-zA-Z0-9_]*$/g.test(item.value.key)) {
+        return Promise.reject("由字母、数字、下划线组成，且以字母开头");
+      }
+
+      if (item.value?.key.length < 1 || item.value?.key.length > 50) {
+        return Promise.reject("长度在 1 到 50 个字符");
+      }
+
+      return Promise.resolve();
+    },
+    trigger: "blur",
+  },
+];
+
+const nameRules = [
+  {
+    validator: () => {
+      if (
+        !(
+          parentItem.value &&
+          parentItem.value.dataType == TemplateDataType.OBJECT
+        )
+      ) {
+        return Promise.resolve();
+      }
+
+      if (!item.value?.name) {
+        return Promise.reject("请输入Key");
+      }
+
+      if (item.value?.name.length < 1 || item.value?.name.length > 50) {
+        return Promise.reject("长度在 1 到 50 个字符");
+      }
+
+      return Promise.resolve();
+    },
+    trigger: "blur",
+  },
+];
+
+const defaultValueRules = [
+  {
+    required: false,
+  },
+  {
+    validator: () => {
+      if (item.value.dataType == TemplateDataType.NUMBER) {
+        if (isNaN(item.value?.defaultValue as any)) {
+          return Promise.reject("Please enter a number");
+        }
+      } else if (item.value.dataType == TemplateDataType.BOOLEAN) {
+        if (!["true", "false"].includes(item.value?.defaultValue as string)) {
+          return Promise.reject("Please enter true or false");
+        }
+      }
+
+      return Promise.resolve();
+    },
+    trigger: "blur",
+  },
+];
+
+const dataTypeRules = [
+  {
+    validator: () => {
+      if (!item.value?.dataType) {
+        return Promise.reject("请选择数据类型");
+      }
+
+      return Promise.resolve();
+    },
+    trigger: "blur",
+  },
+];
 </script>
 
 <style scoped>
@@ -129,24 +287,24 @@ div.container {
   width: 100%;
 }
 
+.template-list {
+  background-color: #f5f7fa;
+  padding: 10px;
+  margin-bottom: 10px;
+  width: 100%;
+}
+
 .template-object {
   background-color: #ebedf0;
   margin-bottom: 10px;
   padding: 10px;
+  width: 100%;
   /*边框为实线*/
   border: 2px solid #dcdfe6;
 }
 
 .el-form-item {
-  display: inline-block !important;
-}
-
-.el-card {
-  margin: 0;
-  padding: 0;
-}
-
-.el-form-item__content {
-  width: 20px;
+  /*display: inline-block !important;*/
+  margin-bottom: 15px !important;
 }
 </style>

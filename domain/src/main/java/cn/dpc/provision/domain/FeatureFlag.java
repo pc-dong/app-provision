@@ -38,25 +38,20 @@ public class FeatureFlag {
 
     public record FeatureFlagDescription(String name,
                                                 String description,
-                                                DataType dataType,
-                                                Object defaultValue,
                                                 Status status,
                                                 FeatureConfigTemplate template) {
-        public enum DataType {
-            BOOLEAN, STRING, NUMBER, JSON_STRING, JSON
-        }
 
         public enum Status {
             DRAFT, PUBLISHED, DISABLED, DELETED
         }
+
     }
 
-    public record FeatureConfigTemplate(List<Item> items) {
-        public enum DataType {
-            BOOLEAN, STRING, NUMBER, OBJECT, LIST_STRING, LIST_NUMBER, LIST_OBJECT
-        }
-        public record Item(String key, String name, String description, DataType dataType, Object defaultValue, List<Item> subItems) {
-        }
+    public enum DataType {
+        BOOLEAN, STRING, NUMBER, OBJECT, ARRAY
+    }
+
+    public record FeatureConfigTemplate(String key, String name, String description, DataType dataType, Object defaultValue, List<FeatureConfigTemplate> items) {
     }
 
 }

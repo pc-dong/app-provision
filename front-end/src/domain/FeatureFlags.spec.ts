@@ -1,8 +1,8 @@
 import {
   FeatureFlag,
-  FeatureFlagDescription,
   FeatureFlags,
   getDefaultValue,
+  TemplateDataType,
 } from "./FeatureFlags";
 import nock from "nock";
 
@@ -90,27 +90,23 @@ describe("FeatureFlags", () => {
           200,
           {
             featureKey: "test",
-            description: {
-              name: "test",
-              description: "test",
-              dataType: "test",
-              defaultValue: "test",
-              status: "PUBLISHED",
-              template: {},
-            },
+            name: "test",
+            description: "test",
+            dataType: "test",
+            defaultValue: "test",
+            status: "PUBLISHED",
+            template: { dataType: TemplateDataType.STRING },
           },
           { "content-type": "application/json" }
         );
       const data = await featureFlags.create({
         featureKey: "test",
-        description: {
-          name: "test",
-          description: "test",
-          dataType: "test",
-          defaultValue: "test",
-          status: "PUBLISHED",
-          template: {},
-        },
+        name: "test",
+        description: "test",
+        dataType: "test",
+        defaultValue: "test",
+        status: "PUBLISHED",
+        template: { dataType: TemplateDataType.STRING },
       } as FeatureFlag);
       expect(data.featureKey).toEqual("test");
     });
@@ -122,14 +118,10 @@ describe("FeatureFlags", () => {
       await expect(
         featureFlags.create({
           featureKey: "test",
-          description: {
-            name: "test",
-            description: "test",
-            dataType: "test",
-            defaultValue: "test",
-            status: "PUBLISHED",
-            template: {},
-          },
+          name: "test",
+          description: "test",
+          status: "PUBLISHED",
+          template: { dataType: TemplateDataType.STRING },
         } as FeatureFlag)
       ).rejects.toThrow(Error);
     });
@@ -142,14 +134,10 @@ describe("FeatureFlags", () => {
         .reply(200, {}, { "content-type": "application/json" });
       await featureFlags.update({
         featureKey: "test",
-        description: {
-          name: "test",
-          description: "test",
-          dataType: "test",
-          defaultValue: "test",
-          status: "PUBLISHED",
-          template: {},
-        },
+        name: "test",
+        description: "test",
+        status: "PUBLISHED",
+        template: { dataType: TemplateDataType.STRING },
       } as FeatureFlag);
     });
 
@@ -160,14 +148,10 @@ describe("FeatureFlags", () => {
       await expect(
         featureFlags.update({
           featureKey: "test",
-          description: {
-            name: "test",
-            description: "test",
-            dataType: "test",
-            defaultValue: "test",
-            status: "PUBLISHED",
-            template: {},
-          },
+          name: "test",
+          description: "test",
+          status: "PUBLISHED",
+          template: { dataType: TemplateDataType.STRING },
         } as FeatureFlag)
       ).rejects.toThrow(Error);
     });
@@ -222,356 +206,396 @@ describe("FeatureFlags", () => {
   });
 
   describe("getDefaultValue", () => {
-    describe("getDefaultValue dataType is BOOLEAN", () => {
-      it("should return false when template.dataType is BOOLEAN and defaultValue is null", () => {
-        const description = {
-          dataType: "BOOLEAN",
-          defaultValue: null,
-        };
-
+    describe("getDefaultValue with STRING type", () => {
+      it("should getDefaultValue return '' when defaultValue is undefined", async () => {
         const featureFlag = {
           featureKey: "test",
-          description: description,
-        } as FeatureFlag;
-        expect(getDefaultValue(featureFlag)).toEqual(false);
-      });
-
-      it("should return false when description.dataType is BOOLEAN and defaultValue is 'false'", () => {
-        const description = {
-          dataType: "BOOLEAN",
-          defaultValue: "false",
-        };
-
-        const featureFlag = {
-          featureKey: "test",
-          description: description,
-        } as FeatureFlag;
-        expect(getDefaultValue(featureFlag)).toEqual(false);
-      });
-
-      it("should return false when description.dataType is BOOLEAN and defaultValue is false", () => {
-        const description = {
-          dataType: "BOOLEAN",
-          defaultValue: false,
-        };
-
-        const featureFlag = {
-          featureKey: "test",
-          description: description,
-        } as FeatureFlag;
-        expect(getDefaultValue(featureFlag)).toEqual(false);
-      });
-
-      it("should return true when description.dataType is BOOLEAN and defaultValue is 'true'", () => {
-        const description = {
-          dataType: "BOOLEAN",
-          defaultValue: "true",
-        };
-
-        const featureFlag = {
-          featureKey: "test",
-          description: description,
-        } as FeatureFlag;
-        expect(getDefaultValue(featureFlag)).toEqual(true);
-      });
-
-      it("should return true when description.dataType is BOOLEAN and defaultValue is 'true'", () => {
-        const description = {
-          dataType: "BOOLEAN",
-          defaultValue: true,
-        };
-
-        const featureFlag = {
-          featureKey: "test",
-          description: description,
-        } as FeatureFlag;
-        expect(getDefaultValue(featureFlag)).toEqual(true);
-      });
-    });
-
-    describe("getDefaultValue dataType is STRING", () => {
-      it("should return empty string when description.dataType is STRING and defaultValue is null", () => {
-        const description = {
-          dataType: "STRING",
-          defaultValue: null,
-        };
-
-        const featureFlag = {
-          featureKey: "test",
-          description: description,
-        } as FeatureFlag;
-        expect(getDefaultValue(featureFlag)).toEqual("");
-      });
-
-      it("should return empty string when description.dataType is STRING and defaultValue is empty string", () => {
-        const description = {
-          dataType: "STRING",
-          defaultValue: "",
-        };
-
-        const featureFlag = {
-          featureKey: "test",
-          description: description,
-        } as FeatureFlag;
-        expect(getDefaultValue(featureFlag)).toEqual("");
-      });
-
-      it("should return string when description.dataType is STRING and defaultValue is not empty string", () => {
-        const description = {
-          dataType: "STRING",
-          defaultValue: "test",
-        };
-
-        const featureFlag = {
-          featureKey: "test",
-          description: description,
-        } as FeatureFlag;
-        expect(getDefaultValue(featureFlag)).toEqual("test");
-      });
-    });
-
-    describe("getDefaultValue dataType is NUMBER", () => {
-      it("should return 0 when description.dataType is NUMBER and defaultValue is null", () => {
-        const description = {
-          dataType: "NUMBER",
-          defaultValue: null,
-        };
-
-        const featureFlag = {
-          featureKey: "test",
-          description: description,
-        } as FeatureFlag;
-        expect(getDefaultValue(featureFlag)).toEqual(0);
-      });
-
-      it("should return 0 when description.dataType is NUMBER and defaultValue is empty string", () => {
-        const description = {
-          dataType: "NUMBER",
-          defaultValue: "",
-        };
-
-        const featureFlag = {
-          featureKey: "test",
-          description: description,
-        } as FeatureFlag;
-        expect(getDefaultValue(featureFlag)).toEqual(0);
-      });
-
-      it("should return 0 when description.dataType is NUMBER and defaultValue is not number", () => {
-        const description = {
-          dataType: "NUMBER",
-          defaultValue: "test",
-        };
-
-        const featureFlag = {
-          featureKey: "test",
-          description: description,
-        } as FeatureFlag;
-        expect(getDefaultValue(featureFlag)).toEqual(0);
-      });
-
-      it("should return number when description.dataType is NUMBER and defaultValue is number", () => {
-        const description = {
-          dataType: "NUMBER",
-          defaultValue: 1,
-        };
-
-        const featureFlag = {
-          featureKey: "test",
-          description: description,
-        } as FeatureFlag;
-        expect(getDefaultValue(featureFlag)).toEqual(1);
-      });
-    });
-
-    describe("getDefaultValue dataType is JSON_STRING", () => {
-      it('should return "{}" when description.dataType is JSON_STRING and defaultValue is null', () => {
-        const description = {
-          dataType: "JSON_STRING",
-          defaultValue: null,
-        };
-
-        const featureFlag = {
-          featureKey: "test",
-          description: description,
-        } as FeatureFlag;
-        expect(getDefaultValue(featureFlag)).toEqual("{}");
-      });
-
-      it('should return "{}" when description.dataType is JSON_STRING and defaultValue is empty string', () => {
-        const description = {
-          dataType: "JSON_STRING",
-          defaultValue: "",
-        };
-
-        const featureFlag = {
-          featureKey: "test",
-          description: description,
-        } as FeatureFlag;
-        expect(getDefaultValue(featureFlag)).toEqual("{}");
-      });
-
-      it('should return "{}" when description.dataType is JSON_STRING and defaultValue is not json string', () => {
-        const description = {
-          dataType: "JSON_STRING",
-          defaultValue: "test",
-        };
-
-        const featureFlag = {
-          featureKey: "test",
-          description: description,
-        } as FeatureFlag;
-        expect(getDefaultValue(featureFlag)).toEqual("{}");
-      });
-
-      it("should return json string when description.dataType is JSON_STRING and defaultValue is json string", () => {
-        const description = {
-          dataType: "JSON_STRING",
-          defaultValue: '{"test": "test"}',
-        };
-
-        const featureFlag = {
-          featureKey: "test",
-          description: description,
-        } as FeatureFlag;
-        expect(getDefaultValue(featureFlag)).toEqual('{"test": "test"}');
-      });
-    });
-
-    describe("getDefaultValue dataType is JSON", () => {
-      it("should return {} when description.dataType is JSON and template is null", () => {
-        const description = {
-          dataType: "JSON",
-          defaultValue: null,
-          template: null,
-        };
-
-        const featureFlag = {
-          featureKey: "test",
-          description: description as unknown as FeatureFlagDescription,
-        } as FeatureFlag;
-        expect(getDefaultValue(featureFlag)).toEqual({});
-      });
-
-      it("should return {} when description.dataType is JSON and template.items is empty", () => {
-        const description = {
-          dataType: "JSON",
-          defaultValue: null,
+          name: "test",
           template: {
+            dataType: TemplateDataType.STRING,
+          },
+        } as FeatureFlag;
+        const defaultValue = getDefaultValue(featureFlag);
+        expect(defaultValue).toEqual("");
+      });
+
+      it('should getDefaultValue return "" when defaultValue is null', async () => {
+        const featureFlag = {
+          featureKey: "test",
+          name: "test",
+          template: {
+            dataType: TemplateDataType.STRING,
+            defaultValue: null,
+          },
+        } as FeatureFlag;
+        const defaultValue = getDefaultValue(featureFlag);
+        expect(defaultValue).toEqual("");
+      });
+
+      it('should getDefaultValue return "" when defaultValue is ""', async () => {
+        const featureFlag = {
+          featureKey: "test",
+          name: "test",
+          template: {
+            dataType: TemplateDataType.STRING,
+            defaultValue: "",
+          },
+        } as FeatureFlag;
+        const defaultValue = getDefaultValue(featureFlag);
+        expect(defaultValue).toEqual("");
+      });
+
+      it("should getDefaultValue return defaultValue when defaultValue is not empty string", async () => {
+        const featureFlag = {
+          featureKey: "test",
+          name: "test",
+          template: {
+            dataType: TemplateDataType.STRING,
+            defaultValue: "test",
+          },
+        } as FeatureFlag;
+        const defaultValue = getDefaultValue(featureFlag);
+        expect(defaultValue).toEqual("test");
+      });
+    });
+
+    describe("getDefaultValue with BOOLEAN type", () => {
+      it("should getDefaultValue return false when defaultValue is undefined", async () => {
+        const featureFlag = {
+          featureKey: "test",
+          name: "test",
+          template: {
+            dataType: TemplateDataType.BOOLEAN,
+            defaultValue: undefined,
+          },
+        } as FeatureFlag;
+        const defaultValue = getDefaultValue(featureFlag);
+        expect(defaultValue).toEqual(false);
+      });
+
+      it("should getDefaultValue return false when defaultValue is null", async () => {
+        const featureFlag = {
+          featureKey: "test",
+          name: "test",
+          template: {
+            dataType: TemplateDataType.BOOLEAN,
+            defaultValue: null,
+          },
+        } as FeatureFlag;
+        const defaultValue = getDefaultValue(featureFlag);
+        expect(defaultValue).toEqual(false);
+      });
+
+      it("should getDefaultValue return false when defaultValue is false", async () => {
+        const featureFlag = {
+          featureKey: "test",
+          name: "test",
+          template: {
+            dataType: TemplateDataType.BOOLEAN,
+            defaultValue: false,
+          },
+        } as FeatureFlag;
+        const defaultValue = getDefaultValue(featureFlag);
+        expect(defaultValue).toEqual(false);
+      });
+
+      it("should getDefaultValue return false when defaultValue is not boolean", async () => {
+        const featureFlag = {
+          featureKey: "test",
+          name: "test",
+          template: {
+            dataType: TemplateDataType.BOOLEAN,
+            defaultValue: "test",
+          },
+        } as FeatureFlag;
+        const defaultValue = getDefaultValue(featureFlag);
+        expect(defaultValue).toEqual(false);
+      });
+
+      it("should getDefaultValue return true when defaultValue is true", async () => {
+        const featureFlag = {
+          featureKey: "test",
+          name: "test",
+          template: {
+            dataType: TemplateDataType.BOOLEAN,
+            defaultValue: true,
+          },
+        } as FeatureFlag;
+        const defaultValue = getDefaultValue(featureFlag);
+        expect(defaultValue).toEqual(true);
+      });
+
+      it("should getDefaultValue return true when defaultValue is 'true'", async () => {
+        const featureFlag = {
+          featureKey: "test",
+          name: "test",
+          template: {
+            dataType: TemplateDataType.BOOLEAN,
+            defaultValue: "true",
+          },
+        } as FeatureFlag;
+        const defaultValue = getDefaultValue(featureFlag);
+        expect(defaultValue).toEqual(true);
+      });
+    });
+
+    describe("getDefaultValue with NUMBER type", () => {
+      it("should getDefaultValue return 0 when defaultValue is undefined", async () => {
+        const featureFlag = {
+          featureKey: "test",
+          name: "test",
+          template: {
+            dataType: TemplateDataType.NUMBER,
+            defaultValue: undefined,
+          },
+        } as FeatureFlag;
+        const defaultValue = getDefaultValue(featureFlag);
+        expect(defaultValue).toEqual(0);
+      });
+
+      it("should getDefaultValue return 0 when defaultValue is null", async () => {
+        const featureFlag = {
+          featureKey: "test",
+          name: "test",
+          template: {
+            dataType: TemplateDataType.NUMBER,
+            defaultValue: null,
+          },
+        } as FeatureFlag;
+        const defaultValue = getDefaultValue(featureFlag);
+        expect(defaultValue).toEqual(0);
+      });
+
+      it('should getDefaultValue return 0 when defaultValue is ""', async () => {
+        const featureFlag = {
+          featureKey: "test",
+          name: "test",
+          template: {
+            dataType: TemplateDataType.NUMBER,
+            defaultValue: "",
+          },
+        } as FeatureFlag;
+        const defaultValue = getDefaultValue(featureFlag);
+        expect(defaultValue).toEqual(0);
+      });
+
+      it('should getDefaultValue return 0 when defaultValue is "test"', async () => {
+        const featureFlag = {
+          featureKey: "test",
+          name: "test",
+          template: {
+            dataType: TemplateDataType.NUMBER,
+            defaultValue: "test",
+          },
+        } as FeatureFlag;
+        const defaultValue = getDefaultValue(featureFlag);
+        expect(defaultValue).toEqual(0);
+      });
+
+      it('should getDefaultValue return 0 when defaultValue is "0"', async () => {
+        const featureFlag = {
+          featureKey: "test",
+          name: "test",
+          template: {
+            dataType: TemplateDataType.NUMBER,
+            defaultValue: "0",
+          },
+        } as FeatureFlag;
+        const defaultValue = getDefaultValue(featureFlag);
+        expect(defaultValue).toEqual(0);
+      });
+
+      it("should getDefaultValue return 0 when defaultValue is 0", async () => {
+        const featureFlag = {
+          featureKey: "test",
+          name: "test",
+          template: {
+            dataType: TemplateDataType.NUMBER,
+            defaultValue: 0,
+          },
+        } as FeatureFlag;
+        const defaultValue = getDefaultValue(featureFlag);
+        expect(defaultValue).toEqual(0);
+      });
+
+      it("should getDefaultValue return 1 when defaultValue is 1", async () => {
+        const featureFlag = {
+          featureKey: "test",
+          name: "test",
+          template: {
+            dataType: TemplateDataType.NUMBER,
+            defaultValue: 1,
+          },
+        } as FeatureFlag;
+        const defaultValue = getDefaultValue(featureFlag);
+        expect(defaultValue).toEqual(1);
+      });
+
+      it('should getDefaultValue return 1 when defaultValue is "1"', async () => {
+        const featureFlag = {
+          featureKey: "test",
+          name: "test",
+          template: {
+            dataType: TemplateDataType.NUMBER,
+            defaultValue: "1",
+          },
+        } as FeatureFlag;
+        const defaultValue = getDefaultValue(featureFlag);
+        expect(defaultValue).toEqual(1);
+      });
+    });
+
+    describe("getDefaultValue with OBJECT type", () => {
+      it("should getDefaultValue return {} when items is undefined", async () => {
+        const featureFlag = {
+          featureKey: "test",
+          name: "test",
+          template: {
+            dataType: TemplateDataType.OBJECT,
+            defaultValue: undefined,
+            items: undefined,
+          },
+        } as FeatureFlag;
+        const defaultValue = getDefaultValue(featureFlag);
+        expect(defaultValue).toEqual({});
+      });
+
+      it("should getDefaultValue return {} when items is empty", async () => {
+        const featureFlag = {
+          featureKey: "test",
+          name: "test",
+          status: "PUBLISHED",
+          template: {
+            dataType: TemplateDataType.OBJECT,
+            defaultValue: undefined,
             items: [],
           },
-        };
-
-        const featureFlag = {
-          featureKey: "test",
-          description: description as unknown as FeatureFlagDescription,
         } as FeatureFlag;
-        expect(getDefaultValue(featureFlag)).toEqual({});
+        const defaultValue = getDefaultValue(featureFlag);
+        expect(defaultValue).toEqual({});
       });
 
-      it("should return object when description.dataType is JSON and template.items is not empty", () => {
-        const description = {
-          dataType: "JSON",
-          defaultValue: null,
+      it("should getDefaultValue return items when items is not empty", async () => {
+        const featureFlag = {
+          featureKey: "test",
+          name: "test",
+          status: "PUBLISHED",
           template: {
+            dataType: TemplateDataType.OBJECT,
+            defaultValue: undefined,
             items: [
               {
                 key: "test",
                 name: "test",
-                description: "test",
-                dataType: "OBJECT",
+                dataType: TemplateDataType.STRING,
                 defaultValue: "test",
-                subItems: [
-                  {
-                    key: "test",
-                    name: "test",
-                    description: "test",
-                    dataType: "STRING",
-                    defaultValue: "test",
-                    subItems: [],
-                  },
-                ],
               },
               {
                 key: "test1",
-                name: "test",
-                description: "test",
-                dataType: "LIST_OBJECT",
+                name: "test1",
+                dataType: TemplateDataType.BOOLEAN,
                 defaultValue: "test",
-                subItems: [
+              },
+            ],
+          },
+        } as FeatureFlag;
+        const defaultValue = getDefaultValue(featureFlag);
+        expect(defaultValue).toEqual({ test: "test", test1: false });
+      });
+    });
+
+    describe("getDefaultValue with ARRAY type", () => {
+      it("should getDefaultValue return [] when items is undefined", async () => {
+        const featureFlag = {
+          featureKey: "test",
+          name: "test",
+          template: {
+            dataType: TemplateDataType.ARRAY,
+            defaultValue: undefined,
+            items: undefined,
+          },
+        } as FeatureFlag;
+        const defaultValue = getDefaultValue(featureFlag);
+        expect(defaultValue).toEqual([]);
+      });
+
+      it("should getDefaultValue return [] when items is empty", async () => {
+        const featureFlag = {
+          featureKey: "test",
+          name: "test",
+          status: "PUBLISHED",
+          template: {
+            dataType: TemplateDataType.ARRAY,
+            defaultValue: undefined,
+            items: [],
+          },
+        } as FeatureFlag;
+        const defaultValue = getDefaultValue(featureFlag);
+        expect(defaultValue).toEqual([]);
+      });
+
+      it("should getDefaultValue return items when items is not empty", async () => {
+        const featureFlag = {
+          featureKey: "test",
+          name: "test",
+          status: "PUBLISHED",
+          template: {
+            dataType: TemplateDataType.ARRAY,
+            defaultValue: undefined,
+            items: [
+              {
+                key: "",
+                name: "",
+                dataType: TemplateDataType.STRING,
+                defaultValue: "test",
+              },
+              {
+                key: "test2",
+                name: "test",
+                dataType: TemplateDataType.STRING,
+                defaultValue: "test",
+              },
+            ],
+          },
+        } as FeatureFlag;
+        const defaultValue = getDefaultValue(featureFlag);
+        expect(defaultValue).toEqual(["test"]);
+      });
+
+      it("should getDefaultValue return items when items type is OBJECT", async () => {
+        const featureFlag = {
+          featureKey: "test",
+          name: "test",
+          status: "PUBLISHED",
+          template: {
+            dataType: TemplateDataType.ARRAY,
+            defaultValue: undefined,
+            items: [
+              {
+                key: "",
+                name: "",
+                dataType: TemplateDataType.OBJECT,
+                defaultValue: "test",
+                items: [
                   {
-                    key: "test",
+                    key: "test2",
                     name: "test",
-                    description: "test",
-                    dataType: "STRING",
+                    dataType: TemplateDataType.STRING,
                     defaultValue: "test",
-                    subItems: [],
                   },
                 ],
               },
               {
                 key: "test2",
                 name: "test",
-                description: "test",
-                dataType: "NUMBER",
-                defaultValue: "0",
-                subItems: [],
-              },
-              {
-                key: "test3",
-                name: "test",
-                description: "test",
-                dataType: "STRING",
+                dataType: TemplateDataType.STRING,
                 defaultValue: "test",
-                subItems: [],
-              },
-              {
-                key: "test4",
-                name: "test",
-                description: "test",
-                dataType: "BOOLEAN",
-                defaultValue: "false",
-                subItems: [],
-              },
-              {
-                key: "test5",
-                name: "test",
-                description: "test",
-                dataType: "LIST_NUMBER",
-                defaultValue: "",
-                subItems: [],
-              },
-              {
-                key: "test6",
-                name: "test",
-                description: "test",
-                dataType: "LIST_STRING",
-                defaultValue: "",
-                subItems: [],
               },
             ],
           },
-        };
-
-        const featureFlag = {
-          featureKey: "test",
-          description: description as unknown as FeatureFlagDescription,
         } as FeatureFlag;
-        expect(getDefaultValue(featureFlag)).toEqual({
-          test: {
-            test: "test",
-          },
-          test1: [
-            {
-              test: "test",
-            },
-          ],
-          test2: "0",
-          test3: "test",
-          test4: false,
-          test5: [0],
-          test6: [""],
-        });
+        const defaultValue = getDefaultValue(featureFlag);
+        expect(defaultValue).toEqual([{ test2: "test" }]);
       });
     });
   });

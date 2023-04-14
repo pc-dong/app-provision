@@ -256,17 +256,17 @@ class ConfigurationsImplTest extends ConfigurationTestBase{
 
         configurations.getById(configuration1.getId())
                 .as(StepVerifier::create)
-                .expectNextMatches(item -> item.getDescription().getPriority() == 2)
+                .expectNextMatches(item -> item.getDescription().getPriority() == 3)
                 .verifyComplete();
 
         configurations.getById(configuration2.getId())
                 .as(StepVerifier::create)
-                .expectNextMatches(item -> item.getDescription().getPriority() == 0)
+                .expectNextMatches(item -> item.getDescription().getPriority() == 1)
                 .verifyComplete();
 
         configurations.getById(configuration3.getId())
                 .as(StepVerifier::create)
-                .expectNextMatches(item -> item.getDescription().getPriority() == 1)
+                .expectNextMatches(item -> item.getDescription().getPriority() == 2)
                 .verifyComplete();
     }
 
