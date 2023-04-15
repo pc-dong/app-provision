@@ -15,7 +15,10 @@ public interface ConfigurationDBRepository extends ReactiveCrudRepository<Config
     Flux<ConfigurationDB> findByType(String type, Sort sort);
 
     @Query("#{#n1ql.selectEntity} " + FILTER_CONDITION + "ORDER BY description.updatedAt DESC LIMIT $limit OFFSET $offset")
-    Flux<ConfigurationDB> findAllByPage(@Param("type") String type, @Param("key") String key, @Param("offset") long offset, @Param("limit") int limit);
+    Flux<ConfigurationDB> findAllByPage(@Param("type") String type,
+                                        @Param("key") String key,
+                                        @Param("offset") long offset,
+                                        @Param("limit") int limit);
 
 
     @Query("SELECT COUNT(1) FROM #{#n1ql.bucket} " + FILTER_CONDITION)

@@ -49,7 +49,7 @@ public class ConfigurationApi {
     Mono<PageResponse<ConfigurationResponse>> listAll(@RequestParam(required = false, defaultValue = "0") int page,
                                                       @RequestParam(required = false, defaultValue = "10") int pageSize,
                                                       @RequestParam(required = false, defaultValue = "") String key,
-                                                      String type) {
+                                                      @RequestParam("type") String type) {
         return configurations.findAllByPage(type, page, pageSize, key)
                 .map(ConfigurationResponse::from)
                 .collectList().zipWith(configurations.countAll(type, key))

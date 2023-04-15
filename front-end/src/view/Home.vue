@@ -4,17 +4,22 @@
       <el-header>
         <el-row>
           <el-col :span="4">
-            <p class="system-name">组件化AB测试平台</p>
+            <p class="system-name">
+              <el-icon><Filter /></el-icon>组件化AB测试平台
+            </p>
           </el-col>
-          <el-col :offset="12" :span="8" style="min-width: 150px">
-          </el-col>
+          <el-col :offset="12" :span="8" style="min-width: 150px"> </el-col>
         </el-row>
       </el-header>
 
       <el-container style="overflow: auto">
         <!-- 左侧菜单 -->
         <el-aside>
-          <el-menu router :default-active="activePath" class="el-menu-vertical-demo">
+          <el-menu
+            router
+            :default-active="activePath"
+            class="el-menu-vertical-demo"
+          >
             <el-menu-item index="/index">
               <el-icon><House /></el-icon>
               <span>首页</span>
@@ -36,11 +41,10 @@
 </template>
 
 <script setup lang="ts">
-import {ref} from "vue";
+import { ref } from "vue";
 
-const activePath = ref<string>('')
+const activePath = ref<string>("");
 </script>
-
 
 <style scoped>
 .home-container {

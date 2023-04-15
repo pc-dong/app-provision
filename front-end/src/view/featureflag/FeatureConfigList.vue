@@ -215,7 +215,5 @@ onMounted(() => {
 
 span.title {
   float: left;
-  font-size: 15px;
-  font-family: "Arial Black";
 }
 </style>

@@ -38,8 +38,12 @@ export const getDefaultValue = (featureFlag: FeatureFlag): any => {
 };
 
 export const getTemplateDefaultValue = (
-  template: FeatureFlagTemplate
+  template: FeatureFlagTemplate | undefined
 ): any | any[] => {
+  if (!template) {
+    return null;
+  }
+
   if (template.dataType === TemplateDataType.OBJECT) {
     const result = {} as any;
     (template.items || []).forEach((item: FeatureFlagTemplate) => {

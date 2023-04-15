@@ -19,7 +19,7 @@ module.exports = {
         '@typescript-eslint/explicit-module-boundary-types': 'off',
         "vue/multi-word-component-names": [
             "error", {
-                ignores: ["Index", "Edit"] //需要忽略的组件名
+                ignores: ["Index", "Edit", "Home"] //需要忽略的组件名
             }
         ]
     }

@@ -1,10 +1,10 @@
 <template>
-  <div>
-    <el-form-item :label="template.name" :tip="template.description">
-      <template v-if="template.dataType === TemplateDataType.BOOLEAN">
+  <div class="data-container">
+    <el-form-item :label="templ.name || ''" :tip="templ.description">
+      <template v-if="templ.dataType === TemplateDataType.BOOLEAN">
         <el-switch v-model="item" @change="updateItem" />
       </template>
-      <template v-else-if="template.dataType === TemplateDataType.NUMBER">
+      <template v-else-if="templ.dataType === TemplateDataType.NUMBER">
         <el-input-number
           v-model="item"
           :precision="2"
@@ -12,141 +12,49 @@
           @change="updateItem"
         />
       </template>
-      <template v-else-if="template.dataType === TemplateDataType.STRING">
+      <template v-else-if="templ.dataType === TemplateDataType.STRING">
         <el-input v-model="item" @change="updateItem" />
       </template>
-      <template v-else-if="template.dataType === TemplateDataType.LIST_STRING">
+
+      <template v-else-if="templ.dataType === TemplateDataType.ARRAY">
         <div class="template-list">
-          <template v-for="(it, index) in item" :key="index">
-            <div class="template-object">
-              <el-row :gutter="10">
-                <el-col :span="22" style="min-width: 400px">
-                  <el-input
-                    v-model="item[index]"
-                    @change="updateItem"
-                    type="textarea"
-                  />
-                </el-col>
-                <el-col :span="2">
-                  <el-button
-                    @click="
-                      item.splice(index, 1);
-                      updateItem();
-                    "
-                    type="warning"
-                    ><el-icon><Delete /></el-icon>
-                  </el-button>
-                </el-col>
-              </el-row>
-            </div>
-          </template>
-          <el-button
-            @click="
-              item.push('');
-              updateItem();
-            "
-            type="primary"
-            ><el-icon><Plus /></el-icon>
-          </el-button>
-        </div>
-      </template>
-      <template v-else-if="template.dataType === TemplateDataType.LIST_NUMBER">
-        <div class="template-list">
-          <template v-for="(it, index) in item" :key="index">
-            <div class="template-object" style="">
-              <el-row :gutter="20">
-                <el-col :span="6">
-                  <el-input-number
-                    v-model="item[index]"
-                    :precision="1"
-                    :step="0.1"
-                    @change="updateItem"
-                  />
-                </el-col>
-                <el-col :span="18">
-                  <el-button
-                    @click="
-                      item.splice(index, 1);
-                      updateItem();
-                    "
-                    type="warning"
-                    ><el-icon><Delete /></el-icon>
-                  </el-button>
-                </el-col>
-              </el-row>
-            </div>
-          </template>
-          <el-button
-            @click="
-              item.push(0);
-              updateItem();
-            "
-            type="primary"
-            ><el-icon><Plus /></el-icon>
-          </el-button>
-        </div>
-      </template>
-      <template v-else-if="template.dataType === TemplateDataType.LIST_OBJECT">
-        <div class="template-list">
-          <template v-for="(itP, index) in item" :key="itP">
+          <template v-for="(itP, cIndex) in item" :key="itP">
             <div class="template-object">
               <el-row :gutter="4">
                 <el-col :span="22">
                   <feature-config-template-data
-                    v-for="it in template.subItems || []"
-                    :key="it.key"
-                    :templateItem="it"
-                    :item="itP[it.key]"
-                    @change="
-                      (key, value) => {
-                        itP[key] = value;
-                        updateItem();
-                      }
-                    "
+                    :key="itP"
+                    :templ="templ.items[0]"
+                    :index="Number(cIndex)"
+                    :parentTemplate="templ"
+                    :item="itP"
+                    @change="updateArrayItem"
                   />
                 </el-col>
                 <el-col :span="2">
-                  <el-button
-                    @click="
-                      item.splice(index, 1);
-                      updateItem();
-                    "
-                    type="warning"
+                  <el-button @click="item.splice(cIndex, 1)" type="warning"
                     ><el-icon><Delete /></el-icon>
                   </el-button>
                 </el-col>
               </el-row>
             </div>
           </template>
-          <el-button
-            @click="
-              item.push(getJSONDefaultValue(template.subItems));
-              updateItem();
-            "
-            type="primary"
+          <el-button @click="addSubItem" type="primary"
             ><el-icon><Plus /></el-icon>
           </el-button>
         </div>
       </template>
 
-      <template v-else-if="template.dataType === TemplateDataType.OBJECT">
-        <div class="template-object">
-          <el-row>
-            <el-col :span="24">
-              <feature-config-template-data
-                v-for="(it, index) in template.subItems || []"
-                :key="index"
-                :templateItem="it"
-                :item="item[it.key]"
-                @change="
-                  (key, value) => {
-                    item[key] = value;
-                    updateItem();
-                  }
-                "
-              />
-            </el-col>
-          </el-row>
+      <template v-else-if="templ.dataType === TemplateDataType.OBJECT">
+        <div class="template-object" style="width: 100%">
+          <feature-config-template-data
+            v-for="it in templ.items || []"
+            :key="item[it.key]"
+            :templ="it"
+            :parentTemplate="templ"
+            :item="item[it.key]"
+            @change="updateObjectItem"
+          />
         </div>
       </template>
 
@@ -159,12 +67,24 @@
 
 <script setup lang="ts">
 import { ref } from "vue";
-import { TemplateDataType, getJSONDefaultValue } from "../domain/FeatureFlags";
+import {
+  TemplateDataType,
+  getTemplateDefaultValue,
+  FeatureFlagTemplate,
+} from "../domain/FeatureFlags";
 
 const props = defineProps({
-  templateItem: {
+  templ: {
     type: Object,
     required: true,
+  },
+  parentTemplate: {
+    type: Object,
+    required: false,
+  },
+  index: {
+    type: Number,
+    required: false,
   },
   item: {
     type: Object,
@@ -172,17 +92,45 @@ const props = defineProps({
   },
 });
 
-const template = ref(props.templateItem);
+const templ = ref(props.templ as FeatureFlagTemplate);
+const parentTemplate = ref(props.parentTemplate as FeatureFlagTemplate);
+const index = ref(props.index);
 const item = ref(props.item);
 
 const emit = defineEmits(["change"]);
 
+const addSubItem = () => {
+  item.value = item.value || [];
+  item.value.push(
+    getTemplateDefaultValue(
+      templ.value?.items ? templ.value?.items[0] : undefined
+    )
+  );
+
+  updateItem();
+};
 const updateItem = () => {
-  emit("change", template.value.key, item.value);
+  emit("change", templ.value.key, item.value, index.value);
+};
+
+const updateObjectItem = (key: string, value: any) => {
+  console.log("updateObjectItem:" + key + "," + value + "," + index.value);
+  item.value[key] = value;
+  updateItem();
+};
+
+const updateArrayItem = (key: string, value: any, index: number) => {
+  item.value[index] = value;
+  updateItem();
 };
 </script>
 
 <style scoped>
+.data-container {
+  /*padding: 20px;*/
+  /*background-color: #fafcff;*/
+  width: 100%;
+}
 .template-object {
   background-color: #ebedf0;
   margin-bottom: 10px;

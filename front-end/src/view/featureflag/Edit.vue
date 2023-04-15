@@ -3,7 +3,7 @@
     <el-card class="box-card">
       <template #header>
         <div class="card-header">
-          <span>{{ title }}</span>
+          <span class="title">{{ title }}</span>
           <el-button size="mini" style="float: right" @click="router.go(-1)"
             >返回
           </el-button>

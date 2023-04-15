@@ -31,6 +31,7 @@ import static org.springframework.data.domain.Sort.Direction.DESC;
 @RequiredArgsConstructor
 public class ConfigurationsImpl implements Configurations {
     private final ConfigurationDBRepository repository;
+
     @Override
     public Flux<Configuration> findAllByType(String type) {
         return repository.findByType(type, Sort.by(new Order(DESC, "description.updatedAt")))
@@ -86,8 +87,8 @@ public class ConfigurationsImpl implements Configurations {
     public Flux<Configuration> findAllAvailableByType(String type) {
         return repository.findByType(type, Sort.by(new Order(ASC, "description.priority"),
                         new Order(DESC, "description.updatedAt")))
-                .filter(db -> db.getDescription().isAvailable())
-                .map(ConfigurationDB::to);
+                .map(ConfigurationDB::to)
+                .filter(configuration -> configuration.getDescription().isAvailable());
     }
 
     @Override

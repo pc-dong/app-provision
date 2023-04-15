@@ -3,7 +3,7 @@
     <el-card class="box-card">
       <template #header>
         <div class="card-header">
-          <span>{{ title }}</span>
+          <span class="title">{{ title }}</span>
           <el-button size="mini" style="float: right" @click="router.go(-1)"
             >返回
           </el-button>
@@ -22,11 +22,11 @@
           <el-input v-model="featureConfig.description" autocomplete="off" />
         </el-form-item>
         <el-form-item label="配置内容" prop="data">
-          <FeatureConfigData
-            :key="featureConfig.id"
-            :featureFlag="featureFlag"
+          <FeatureConfigTemplateData
+            :key="featureConfig.data"
+            :templ="featureFlag.template"
             :item="featureConfig.data"
-            @change="featureConfig.data = $event"
+            @change="updateData"
           />
         </el-form-item>
         <el-form-item label="生效时间" prop="timeRange">
@@ -54,9 +54,11 @@
             :index="index"
             @deleteItem="deleteTrackingData(index)"
           />
-          <el-button type="primary" @click="addTrackingData"
-            ><el-icon><Plus /></el-icon
-          ></el-button>
+          <el-button type="primary" @click="addTrackingData">
+            <el-icon>
+              <Plus />
+            </el-icon>
+          </el-button>
         </el-form-item>
         <el-form-item>
           <el-button type="default" @click="resetForm()">重置</el-button>
@@ -74,7 +76,7 @@ import { ElButton, ElForm, ElFormItem, ElInput, ElMessage } from "element-plus";
 import { FeatureConfig, FeatureConfigs } from "../../domain/FeatureConfigs";
 import { FeatureFlag, getDefaultValue } from "../../domain/FeatureFlags";
 import TrackingDataItem from "../../components/TrackingDataItem.vue";
-import FeatureConfigData from "../../components/FeatureConfigData.vue";
+import FeatureConfigTemplateData from "../../components/FeatureConfigTemplateData.vue";
 
 const route = useRoute();
 const router = useRouter();
@@ -132,6 +134,7 @@ const form = ref<ElForm>(null);
 const deleteTrackingData = (index: number) => {
   trackingData.value.splice(index, 1);
 };
+
 const addTrackingData = () => {
   trackingData.value.push({
     index: trackingDataIndex++,
@@ -139,6 +142,9 @@ const addTrackingData = () => {
     value: "",
   });
 };
+
+const updateData = (key: string, value: any) =>
+  (featureConfig.value.data = value);
 
 const submitForm = async () => {
   form?.value?.validate(async (valid: boolean) => {
