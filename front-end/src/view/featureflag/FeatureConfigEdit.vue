@@ -60,6 +60,19 @@
             </el-icon>
           </el-button>
         </el-form-item>
+        <el-form-item label="白名单">
+          <WhiteListCondition
+            :key="
+              featureConfig.customerCriteriaCondition.whiteListCondition
+                .whiteList
+            "
+            :white-list="
+              featureConfig.customerCriteriaCondition.whiteListCondition
+                .whiteList
+            "
+            @change="updateWhiteList"
+          />
+        </el-form-item>
         <el-form-item>
           <el-button type="default" @click="resetForm()">重置</el-button>
           <el-button type="primary" @click="submitForm()">提交</el-button>
@@ -77,6 +90,7 @@ import { FeatureConfig, FeatureConfigs } from "../../domain/FeatureConfigs";
 import { FeatureFlag, getDefaultValue } from "../../domain/FeatureFlags";
 import TrackingDataItem from "../../components/TrackingDataItem.vue";
 import FeatureConfigTemplateData from "../../components/FeatureConfigTemplateData.vue";
+import WhiteListCondition from "../../components/WhiteListCondition.vue";
 
 const route = useRoute();
 const router = useRouter();
@@ -104,13 +118,28 @@ onBeforeMount(async () => {
     timeRange: {},
     trackingData: [],
     data: getDefaultValue(featureFlag.value),
+    customerCriteriaCondition: {
+      whiteListCondition: { whiteList: [] as string[] },
+    },
   } as FeatureConfig;
 
   if (route.query.id) {
     const res = await featureConfigs.fetchById(route.query.id.toString());
     id.value = res.id as string;
     featureConfig.value = res;
-    originalFeatureConfig.value = res;
+    console.log(JSON.stringify(res));
+    if (!featureConfig.value.customerCriteriaCondition) {
+      featureConfig.value.customerCriteriaCondition = {};
+    }
+
+    if (!featureConfig.value.customerCriteriaCondition.whiteListCondition) {
+      featureConfig.value.customerCriteriaCondition.whiteListCondition = {
+        whiteList: [],
+      };
+    }
+
+    console.log(JSON.stringify(featureConfig.value.customerCriteriaCondition));
+    originalFeatureConfig.value = featureConfig.value;
   }
 
   trackingData.value = featureConfig.value.trackingData
@@ -145,6 +174,21 @@ const addTrackingData = () => {
 
 const updateData = (key: string, value: any) =>
   (featureConfig.value.data = value);
+
+const updateWhiteList = (whiteList: string[]) => {
+  if (!featureConfig.value.customerCriteriaCondition) {
+    featureConfig.value.customerCriteriaCondition = {};
+  }
+
+  if (!featureConfig.value.customerCriteriaCondition.whiteListCondition) {
+    featureConfig.value.customerCriteriaCondition.whiteListCondition = {
+      whiteList: [],
+    };
+  }
+
+  featureConfig.value.customerCriteriaCondition.whiteListCondition.whiteList =
+    whiteList;
+};
 
 const submitForm = async () => {
   form?.value?.validate(async (valid: boolean) => {

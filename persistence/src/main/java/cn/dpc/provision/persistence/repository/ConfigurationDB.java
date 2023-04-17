@@ -17,7 +17,6 @@ import org.springframework.data.couchbase.core.mapping.id.GenerationStrategy;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.LinkedHashMap;
 
 @Document
 @Data
@@ -63,6 +62,7 @@ public class ConfigurationDB {
         this.getDescription().setTimeRange(configuration.getDescription().getTimeRange());
         this.getDescription().setDescription(configuration.getDescription().getDescription());
         this.getDescription().setTitle(configuration.getDescription().getTitle());
+        this.setCustomerCriteriaCondition(configuration.getCustomerCriteriaCondition());
         return this;
     }
 

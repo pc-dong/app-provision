@@ -2,6 +2,7 @@ package cn.dpc.provision.domain.differ;
 
 import cn.dpc.provision.domain.Configuration;
 import cn.dpc.provision.domain.ConfigurationDescription;
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -42,7 +43,9 @@ public class DifferResult {
                              Object data,
                              Object trackingData,
                              ConfigurationDescription.DisplayRule displayRule,
+                             @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss.SSS")
                              LocalDateTime updatedAt,
+                             @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss.SSS")
                              LocalDateTime expiredAt,
                              long priority) {
         public static DifferResult.DifferItem from(Configuration configuration) {
@@ -58,10 +61,9 @@ public class DifferResult {
         }
     }
 
-    ;
-
     public record DifferContent(String key,
                                 long priority,
+                                @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss.SSS")
                                 LocalDateTime updatedAt,
                                 List<DifferItem> items) {
 
