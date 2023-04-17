@@ -60,7 +60,11 @@
             </el-icon>
           </el-button>
         </el-form-item>
-        <el-form-item label="白名单">
+        <el-form-item
+          label="白名单"
+          prop="customerCriteriaCondition.whiteListCondition
+                .whiteList"
+        >
           <WhiteListCondition
             :key="
               featureConfig.customerCriteriaCondition.whiteListCondition
@@ -71,6 +75,15 @@
                 .whiteList
             "
             @change="updateWhiteList"
+          />
+        </el-form-item>
+        <el-form-item label="地理位置">
+          <LocationCondition
+            ref="locationCondition"
+            :item="
+              featureConfig.customerCriteriaCondition.locationCondition.adCodes
+            "
+            @change="updateLocation"
           />
         </el-form-item>
         <el-form-item>
@@ -91,6 +104,7 @@ import { FeatureFlag, getDefaultValue } from "../../domain/FeatureFlags";
 import TrackingDataItem from "../../components/TrackingDataItem.vue";
 import FeatureConfigTemplateData from "../../components/FeatureConfigTemplateData.vue";
 import WhiteListCondition from "../../components/WhiteListCondition.vue";
+import LocationCondition from "../../components/LocationCondition.vue";
 
 const route = useRoute();
 const router = useRouter();
@@ -105,6 +119,7 @@ const featureKey = ref("");
 const id = ref("");
 const trackingData = ref([] as any[]);
 let trackingDataIndex = 0;
+const locationCondition = ref({} as any);
 onBeforeMount(async () => {
   title.value =
     (route.query.type == "edit" ? "编辑" : "新增") + "Feature Config";
@@ -120,6 +135,7 @@ onBeforeMount(async () => {
     data: getDefaultValue(featureFlag.value),
     customerCriteriaCondition: {
       whiteListCondition: { whiteList: [] as string[] },
+      locationCondition: { adCodes: [] as string[] },
     },
   } as FeatureConfig;
 
@@ -138,8 +154,15 @@ onBeforeMount(async () => {
       };
     }
 
-    console.log(JSON.stringify(featureConfig.value.customerCriteriaCondition));
+    if (!featureConfig.value.customerCriteriaCondition.locationCondition) {
+      featureConfig.value.customerCriteriaCondition.locationCondition = {
+        adCodes: [],
+      };
+    }
+
     originalFeatureConfig.value = featureConfig.value;
+    locationCondition.value.item =
+      featureConfig.value.customerCriteriaCondition.locationCondition.adCodes;
   }
 
   trackingData.value = featureConfig.value.trackingData
@@ -182,12 +205,27 @@ const updateWhiteList = (whiteList: string[]) => {
 
   if (!featureConfig.value.customerCriteriaCondition.whiteListCondition) {
     featureConfig.value.customerCriteriaCondition.whiteListCondition = {
-      whiteList: [],
+      whiteList: whiteList || [],
     };
   }
 
   featureConfig.value.customerCriteriaCondition.whiteListCondition.whiteList =
-    whiteList;
+    whiteList || [];
+};
+
+const updateLocation = (value: string[]) => {
+  if (!featureConfig.value.customerCriteriaCondition) {
+    featureConfig.value.customerCriteriaCondition = {};
+  }
+
+  if (!featureConfig.value.customerCriteriaCondition.locationCondition) {
+    featureConfig.value.customerCriteriaCondition.locationCondition = {
+      adCodes: value || [],
+    };
+  }
+
+  featureConfig.value.customerCriteriaCondition.locationCondition.adCodes =
+    value || [];
 };
 
 const submitForm = async () => {
