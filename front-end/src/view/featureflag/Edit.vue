@@ -21,7 +21,7 @@
         <el-form-item label="Feature Name" prop="name">
           <el-input v-model="featureFlag.name" autocomplete="off" />
         </el-form-item>
-        <el-form-item label="Feature Description" prop="description">
+        <el-form-item label="Description" prop="description">
           <el-input v-model="featureFlag.description" autocomplete="off" />
         </el-form-item>
 

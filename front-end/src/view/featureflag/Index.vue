@@ -39,11 +39,7 @@
           </template>
         </el-table-column>
         <el-table-column prop="name" label="名称" width="200" />
-        <el-table-column
-          prop="description.description"
-          label="描述"
-          width="300"
-        />
+        <el-table-column prop="description" label="描述" width="300" />
         <el-table-column prop="status" label="状态" width="240" />
         <el-table-column label="操作">
           <template #default="scope">
