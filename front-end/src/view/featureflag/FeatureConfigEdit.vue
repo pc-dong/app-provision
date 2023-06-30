@@ -121,13 +121,13 @@ const trackingData = ref([] as any[]);
 let trackingDataIndex = 0;
 const locationCondition = ref({} as any);
 onBeforeMount(async () => {
-  title.value =
-    (route.query.type == "edit" ? "编辑" : "新增") + "Feature Config";
   formType.value = route.query.type == "edit" ? "edit" : "add";
   featureKey.value = "" + route.query.featureKey;
 
   const featureFlagString = decodeURI(route.query.featureFlag as string);
   featureFlag.value = JSON.parse(featureFlagString) as FeatureFlag;
+  title.value =
+    (route.query.type == "edit" ? "编辑" : "新增") + featureFlag.value.name;
 
   featureConfig.value = {
     timeRange: {},

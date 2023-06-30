@@ -3,7 +3,7 @@
     <el-card>
       <el-card-header style="padding: 5px">
         <div class="card-header">
-          <span class="title"> FeatureKey: {{ type }}</span>
+          <span class="title"> {{ featureName }}管理</span>
           <el-button
             size="mini"
             style="float: right"
@@ -117,10 +117,12 @@ const featureFlag = ref();
 const featureFlags = new FeatureFlags();
 
 const type = ref();
+const featureName = ref();
 onBeforeMount(async () => {
   type.value = route.query.featureKey;
   const flag = await featureFlags.fetch(type.value);
   featureFlag.value = flag;
+  featureName.value = flag.name;
 });
 
 const router = useRouter();
