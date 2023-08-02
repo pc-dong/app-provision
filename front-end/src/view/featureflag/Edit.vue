@@ -13,19 +13,19 @@
         :model="featureFlag"
         :rules="formRules"
         ref="form"
-        label-width="140px"
+        label-width="100px"
       >
-        <el-form-item label="Feature Key" prop="featureKey">
+        <el-form-item label="Key" prop="featureKey">
           <el-input v-model="featureFlag.featureKey" autocomplete="off" />
         </el-form-item>
-        <el-form-item label="Feature Name" prop="name">
+        <el-form-item label="名称" prop="name">
           <el-input v-model="featureFlag.name" autocomplete="off" />
         </el-form-item>
-        <el-form-item label="Description" prop="description">
+        <el-form-item label="描述" prop="description">
           <el-input v-model="featureFlag.description" autocomplete="off" />
         </el-form-item>
 
-        <el-form-item label="Config Template" prop="template">
+        <el-form-item label="配置模版" prop="template">
           <feature-flag-template-item
             :key="featureFlag.template"
             :index="0"

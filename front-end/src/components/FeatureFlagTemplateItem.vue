@@ -1,7 +1,7 @@
 <template>
   <div class="template-object">
     <el-row>
-      <el-col :span="23">
+      <el-col :span="23 + (shouldShowDeleteButton() ? 0 : 1)">
         <el-form-item
           v-if="shouldShowKey()"
           label="Key"
@@ -33,7 +33,7 @@
         </el-form-item>
         <el-form-item
           v-if="shouldShowDefaultValue()"
-          label="Default Value"
+          label="默认值"
           prop="defaultValue"
           :rules="defaultValueRules"
         >
@@ -41,11 +41,7 @@
         </el-form-item>
         <el-form-item></el-form-item>
 
-        <el-form-item
-          v-if="shouldShowSubItems()"
-          label="Sub Items"
-          prop="subItems"
-        >
+        <el-form-item v-if="shouldShowSubItems()" label=" " prop="subItems">
           <feature-flag-template-item
             v-for="(subItem, ind) in item.items"
             :key="subItem"
@@ -60,12 +56,8 @@
           />
         </el-form-item>
       </el-col>
-      <el-col :span="1">
-        <el-button
-          v-if="shouldShowDeleteButton()"
-          type="warning"
-          @click="deleteItem()"
-        >
+      <el-col v-if="shouldShowDeleteButton()" :span="1">
+        <el-button type="warning" @click="deleteItem()">
           <el-icon>
             <Delete />
           </el-icon>
@@ -284,7 +276,7 @@ const dataTypeRules = [
 div.container {
   padding: 5px;
   background-color: #fafcff;
-  width: 100%;
+  width: 100% !important;
 }
 
 .template-list {
@@ -296,9 +288,13 @@ div.container {
 
 .template-object {
   background-color: #ebedf0;
-  margin-bottom: 10px;
-  padding: 10px;
-  width: 100%;
+  margin-bottom: 1px;
+  margin-right: 0px;
+  margin-left: 0px;
+  padding-top: 10px;
+  padding-left: 0px;
+  padding-right: 0px;
+  width: 100% !important;
   /*边框为实线*/
   border: 2px solid #dcdfe6;
 }
