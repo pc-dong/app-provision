@@ -13,7 +13,7 @@
         :model="featureConfig"
         :rules="formRules"
         ref="form"
-        label-width="140px"
+        label-width="100px"
       >
         <el-form-item label="配置标题" prop="title">
           <el-input v-model="featureConfig.title" autocomplete="off" />
